@@ -20,7 +20,7 @@ format:
     toc: true
     toc-depth: 2  # or 3, 4 etc.
     chalkboard: false # chalkboard and embed-resources can not be activted together
-    embed-resources: true
+    embed-resources: false
 editor_options:
   chunk_output_type: console
 ---
