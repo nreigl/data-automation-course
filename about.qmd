@@ -2,4 +2,16 @@
 title: "About"
 ---
 
-About this site
+# About This Course
+
+This short course, organized by **Eesti Pank**, introduces techniques for automating the collection, processing, and visualization of official statistics using R.
+
+It is intended for participants who work with statistical data and are interested in streamlining their workflows through reproducible code and automated reporting.
+
+---
+
+## Disclaimer
+
+The views expressed in this course and its materials are those of the instructors and do not necessarily reflect the official position of **Eesti Pank**.
+
+All examples and code provided are for educational purposes only.

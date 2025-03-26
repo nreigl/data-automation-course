@@ -1,0 +1,29 @@
+{
+  "teaching_materials/intro.qmd": {
+    "intro.html": "ecb4afd3",
+    "page_for_distribution_fetching.html": "f4eb1fae",
+    "page_for_distribution_intro.html": "9e66a5ca"
+  },
+  "teaching_materials/reporting.qmd": {
+    "reporting.html": "3056208d"
+  },
+  "teaching_materials/visualization.qmd": {
+    "visualization.html": "39f90d65"
+  },
+  "teaching_materials/fetching.qmd": {
+    "fetching.html": "ce50c04b",
+    "slides_for_distribution_fetching.html": "da6e6f66",
+    "page_for_distribution_fetching.html": "9b013d67",
+    "presentation_for_distribution_fetching.html": "070c7943"
+  },
+  "teaching_materials/cleaning.qmd": {
+    "cleaning.html": "3bed6662"
+  },
+  "index.qmd": {
+    "index.html": "87e83cce",
+    "home_for_distribution_intro.html": "f3acc89a"
+  },
+  "about.qmd": {
+    "about.html": "f57a6ae5"
+  }
+}

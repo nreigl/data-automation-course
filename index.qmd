@@ -1,7 +1,48 @@
 ---
-title: "data_automation_course"
+title: "Data automatisation course"
+author: "Alari & Nicolas"
+date: "2025-04-17"
+institute: "Eesti Pank"
+format:
+  # revealjs: #  for presentation
+    # output-file: presentation_for_distribution_fetching.html
+   html: # for website
+    output-file: home_for_distribution_intro.html
+    encoding: "UTF-8" # Estonian speical characters
+    incremental: true
+    preview-links: true
+    scroll-view: false
+    theme: simple
+    smaller: true
+    slide-number: true
+    font-size: 0.6em
+    transition: slide
+    toc: true
+    toc-depth: 2  # or 3, 4 etc.
+    chalkboard: false # chalkboard and embed-resources can not be activted together
+    embed-resources: true
+editor_options:
+  chunk_output_type: console
 ---
 
-This is a Quarto website.
+# Welcome to the Data Automatisation Course
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+**📅 April 17, 2025 – Eesti Pank**  
+**👨‍🏫 Instructors**: Alari & Nicolas
+
+This short course introduces tools and techniques for automating the collection and visualization of official statistics using R.
+
+
+## 🔗 Quick Links
+
+- [Course Introduction](intro.html)
+- [Code Examples](teaching_materials/)
+
+
+## Disclaimer
+
+The views expressed in this course and its materials are those of the instructors and do not necessarily reflect the official position of **Eesti Pank**.
+
+All examples and code provided are for educational purposes only.
+
+

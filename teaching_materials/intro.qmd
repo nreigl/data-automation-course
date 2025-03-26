@@ -1,0 +1,75 @@
+---
+title: "Automating Data Workflows"
+author: "Alari & Nicolas"
+date: "2025-04-17"
+institute: "Eesti Pank"
+format:
+  # revealjs: #  for presentation
+    # output-file: presentation_for_distribution_fetching.html
+   html: # for website
+    output-file: page_for_distribution_intro.html
+    encoding: "UTF-8" # Estonian speical characters
+    incremental: true
+    preview-links: true
+    scroll-view: false
+    theme: simple
+    smaller: true
+    slide-number: true
+    font-size: 0.6em
+    transition: slide
+    toc: true
+    toc-depth: 2  # or 3, 4 etc.
+    chalkboard: false # chalkboard and embed-resources can not be activted together
+    embed-resources: true
+editor_options:
+  chunk_output_type: console
+---
+
+# Course Introduction
+
+Welcome to the **Data Automatisation Course**! In this hands-on workshop, you'll learn how to fetch, clean, and visualize official statistics using R.
+
+---
+
+## 🧭 Agenda
+
+**Morning (09:30–12:00)**  
+- Introduction & Motivation  
+- APIs and official statistics  
+- Fetching data with `pxweb` and `rdbnomics`
+
+**Lunch Break**
+
+**Afternoon (13:00–15:30)**  
+- Data wrangling with `tidyverse`  
+- Visualization and reporting with `quarto`  
+- Wrap-up & Q&A
+
+---
+
+## 🎯 Learning Goals
+
+By the end of this course, you will be able to:
+
+- Access and explore data from Statistics Estonia and DBnomics
+- Automate data downloads and updates
+- Build clean, reproducible reports with R and Quarto
+
+---
+
+## 🧰 Tools We’ll Use
+
+- **R** and **RStudio**
+- Quarto
+- Tidyverse
+- APIs (`rdbnomics`, `pxweb`)
+
+## Why Write Code Instead of Using Excel?
+
+- ✅ **Repeatability**: Run once, use forever.  
+- ✅ **Transparency**: All steps are visible in the script.  
+- ✅ **Scalability**: Works for 1 or 100 datasets.  
+- ✅ **Fewer Errors**: Avoid manual mistakes.  
+- ✅ **Version Control**: Track changes, collaborate easily.  
+---
+

@@ -1,0 +1,19 @@
+# Quarto output
+# _site/
+# *.html
+
+# R/RStudio
+.Rproj.user/
+*.Rproj
+.Rhistory
+.RData
+
+# Cache and files
+*/fetching_cache/
+*/fetching_files/
+
+# Optional: exclude raw data and exercises from GitHub
+exercises/
+data/
+raw_data/
+
