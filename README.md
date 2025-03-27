@@ -1,4 +1,4 @@
-# 📦 Materials for the Course: \_Fetching and Visualizing Official Statistics
+# 📦 Materials for the Course: Fetching and Visualizing Official Statistics
 
 This repository contains the teaching materials for the short course **“Fetching and Visualizing Official Statistics”**, organized by **Eesti Pank** on **April 17, 2025**.
 
