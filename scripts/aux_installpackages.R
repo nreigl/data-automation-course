@@ -1,0 +1,11 @@
+install.packages(c(
+  "tidyverse",
+  "rdbnomics",
+  "eurostat",
+  "pxweb",
+  "quarto",
+  "plotly",
+  "gt",
+  "httr",
+  "jsonlite"
+))
