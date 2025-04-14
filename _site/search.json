@@ -537,5 +537,110 @@
     "title": "Fetching and Visualizing Official Statistics with R",
     "section": "",
     "text": "🧠 Use either:\n\nProgrammatically via the metadata (pxweb_get(), pxweb_get_metadata())\nFrom the Statistics Estonia web interface – click “API query for this table”\n\n\n\npa111_meta &lt;- pxweb_get(\n  url = \"https://andmed.stat.ee/api/v1/en/stat/PA111\")\npa111_meta\n\nPXWEB METADATA\nPA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES BY ECONOMIC ACTIVITY SECTION (QUARTERLY) \nvariables:\n [[1]] Näitaja: Indicator\n [[2]] Tegevusala: Economic activity\n [[3]] Vaatlusperiood: Reference period\n\npa111_meta$variables[[1]]\n\n$code\n[1] \"Näitaja\"\n\n$text\n[1] \"Indicator\"\n\n$values\n [1] \"GR_W_AVG\"    \"NR_EMPL\"     \"GR_W_D1\"     \"GR_W_D2\"     \"GR_W_D3\"    \n [6] \"GR_W_D4\"     \"GR_W_D5\"     \"GR_W_D6\"     \"GR_W_D7\"     \"GR_W_D8\"    \n[11] \"GR_W_D9\"     \"GR_W_AVG_SM\"\n\n$valueTexts\n [1] \"Average monthly gross wages (salaries), euros\"                                                  \n [2] \"Number of employees\"                                                                            \n [3] \"1st decile of monthly gross wages (salaries), euros\"                                            \n [4] \"2nd decile of monthly gross wages (salaries), euros\"                                            \n [5] \"3rd decile of monthly gross wages (salaries), euros\"                                            \n [6] \"4th decile of monthly gross wages (salaries), euros\"                                            \n [7] \"Median (5th decile) of monthly gross wages (salaries), euros\"                                   \n [8] \"6th decile of monthly gross wages (salaries), euros\"                                            \n [9] \"7th decile of monthly gross wages (salaries), euros\"                                            \n[10] \"8th decile of monthly gross wages (salaries), euros\"                                            \n[11] \"9th decile of monthly gross wages (salaries), euros\"                                            \n[12] \"Percentage change in average gross wages (salaries) compared to same period in previous year, %\"\n\n$elimination\n[1] FALSE\n\n$time\n[1] FALSE\n\n\n\n\npx_query_list1 &lt;- list(\n  \"Näitaja\" = c(\"GR_W_D1\", \"GR_W_D5\", \"GR_W_D9\"),\n  \"Tegevusala\" = \"*\",\n  \"Vaatlusperiood\" = \"*\"\n)\n\npa111 &lt;- pxweb_get(\n  url = \"https://andmed.stat.ee/api/v1/en/stat/PA111\",\n  query = px_query_list1\n)\n\n# Convert to data frame\npa111.df &lt;- as.data.frame(pa111, column.name.type = \"text\", variable.value.type = \"text\")\npa111.code &lt;- as.data.frame(pa111, column.name.type = \"code\", variable.value.type = \"code\")\npa111.df$Näitaja &lt;- pa111.code$Näitaja\n\n\nselected_sectors &lt;- c(\"Manufacturing\", \"Construction\", \"Information and communication\", \"Real estate activities\", \"Total - all activities\")\n# Clean and reshape\npa111_plotdata &lt;- pa111.df %&gt;%\n  mutate(\n    quarter = yq(str_replace(`Reference period`, \" \", \"-\")),\n    Indicator = recode(\n      Näitaja,\n      \"GR_W_D1\" = \"D1\",\n      \"GR_W_D5\" = \"Median\",\n      \"GR_W_D9\" = \"D9\"\n    )\n  ) %&gt;%\n  filter(\n    `Economic activity` %in% selected_sectors,\n    Indicator %in% c(\"D1\", \"Median\", \"D9\")\n  ) %&gt;%\n  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) %&gt;%\n  pivot_wider(names_from = Indicator, values_from = value)\n\n\n\noverall_median &lt;- pa111_plotdata %&gt;%\n  filter(`Economic activity` == \"Total - all activities\") %&gt;%\n  select(quarter, total_median = Median)\n\n\npa111_plotdata &lt;- pa111_plotdata %&gt;%\n  filter(`Economic activity` != \"Total - all activities\") %&gt;%\n  left_join(overall_median, by = \"quarter\")\n\n\n\nggplot(pa111_plotdata, aes(x = quarter)) +\n  geom_ribbon(aes(ymin = D1, ymax = D9), fill = \"skyblue\", alpha = 0.5) +\n  geom_line(aes(y = Median), color = \"darkblue\", linewidth = 1) +\n  geom_line(aes(y = total_median), color = \"red\", linetype = \"dashed\", linewidth = 0.7) +\n  facet_wrap(~`Economic activity`, ncol = 2) +\n  labs(\n    title = \"Wage Distribution by Sector (1st to 9th Decile, Median)\",\n    subtitle = \"Red dashed line shows overall median (Total - all activities)\",\n    x = \"Quarter\",\n    y = \"Gross Nominal Monthly Wages (EUR)\"\n  ) +\n  theme_minimal() +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1))\n\n\n\n\n\n\n\n\n\n\n# library(DataExplorer)\n# create_report(pa111_plotdata)"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#what-is-a-reproducible-report",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#what-is-a-reproducible-report",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "What is a Reproducible Report?",
+    "text": "What is a Reproducible Report?\nA reproducible report is a document that integrates data analysis, visualizations, and narrative text into a single cohesive output, which can be automatically regenerated and verified."
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#key-components",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#key-components",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Key Components",
+    "text": "Key Components\n\nData: Clearly sourced, documented, and accessible.\nCode: Transparent and executable by anyone.\nNarrative: Explanation and interpretation clearly linked to outputs."
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#why-use-reproducible-reports",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#why-use-reproducible-reports",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Why Use Reproducible Reports?",
+    "text": "Why Use Reproducible Reports?\n\nTransparency: Enhances trust and facilitates peer review.\nEfficiency: Easy updates when data or methods change.\nCollaboration: Simplifies teamwork and project continuity."
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#tools-for-creating-reproducible-reports",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#tools-for-creating-reproducible-reports",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Tools for Creating Reproducible Reports",
+    "text": "Tools for Creating Reproducible Reports\nOpen source:\n\nQuarto: Integrates R, Python, Julia and other languages directly into documents.\nJupyter Notebooks: Supports Python and other languages for interactive analysis.\n\nOutput types\n\nArticles, presentations, dashboards, websites, blogs, and books in HTML, PDF, MS Word, MS Powerpoint, ePub, and more\n\n\n\nPdfBeamerPowerpoint\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat:\n  pdf:\n    toc: true\n    number-sections: true\n    colorlinks: true\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: beamer\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: pptx"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#practical-example-in-rmarkdown",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#practical-example-in-rmarkdown",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Practical Example in RMarkdown",
+    "text": "Practical Example in RMarkdown\n# Example RMarkdown chunk\nlibrary(rdbnomics)  # \nunemp &lt;- rdb(ids = \"Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE\") # fetch data"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#practical-example-of-an-r-chunk-in-quarto",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#practical-example-of-an-r-chunk-in-quarto",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Practical Example of an R chunk in Quarto",
+    "text": "Practical Example of an R chunk in Quarto\nThis is an example of an R chunk in Quarto. It fetches data from the Eurostat database using the rdbnomics package.\n# Example RMarkdown chunk\nlibrary(rdbnomics)  # \nunemp &lt;- rdb(ids = \"Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE\") # fetch data"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#export-and-publish",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#export-and-publish",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Export and Publish",
+    "text": "Export and Publish\n\nArticles, presentations, dashboards, websites, blogs, and books in HTML, PDF, MS Word, MS Powerpoint, ePub, and more\n\n\nPdfBeamerPowerpoint\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat:\n  pdf:\n    toc: true\n    number-sections: true\n    colorlinks: true\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: beamer\n---\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: pptx\n---"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#export",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#export",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Export",
+    "text": "Export\n\nArticles, presentations, dashboards, websites, blogs, and books in HTML, PDF, MS Word, MS Powerpoint, ePub, and more\n\n\n\nPdfBeamerPowerpoint\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat:\n  pdf:\n    toc: true\n    number-sections: true\n    colorlinks: true\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: beamer\n---\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: pptx\n---"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#export-formats",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#export-formats",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Export formats",
+    "text": "Export formats\n\nArticles, presentations, dashboards, websites, blogs, and books in HTML, PDF, MS Word, MS Powerpoint, ePub, and more\n\n\n\nPdfBeamerPowerpoint\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat:\n  pdf:\n    toc: true\n    number-sections: true\n    colorlinks: true\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: beamer\n---\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: pptx\n---"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#project-_quarto.yml",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#project-_quarto.yml",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Project: _quarto.yml",
+    "text": "Project: _quarto.yml\n\n\n_quarto.yml\n\nproject:\n  type: manuscript\n\nmanuscript:\n  article: index.qmd\n\nformat:\n  html:\n    comments:\n      hypothesis: true\n  docx: default\n\n  # (other formats)\n  # pdf: default\n\nexecute:\n  freeze: true"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#output-types",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#output-types",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "Output types",
+    "text": "Output types\n\nArticles, presentations, dashboards, websites, blogs, and books in HTML, PDF, MS Word, MS Powerpoint, ePub, and more\n\n\n\nPdfBeamerPowerpoint\n\n\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat:\n  pdf:\n    toc: true\n    number-sections: true\n    colorlinks: true\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: beamer\n---\n\n\n---\ntitle: \"My Document\"\nauthor: \"Nicolas Reigl\"\nformat: pptx\n---"
+  },
+  {
+    "objectID": "teaching_materials/presentation_for_distribution_reporting.html#r-and-python-chunks-in-quarto",
+    "href": "teaching_materials/presentation_for_distribution_reporting.html#r-and-python-chunks-in-quarto",
+    "title": "Reproducible Manuscripts and Reports",
+    "section": "R and Python Chunks in Quarto",
+    "text": "R and Python Chunks in Quarto\nThis is an example of an R chunk in Quarto. It fetches data from the Eurostat database using the rdbnomics package.\n# Example RMarkdown chunk\nlibrary(rdbnomics)  # \nunemp &lt;- rdb(ids = \"Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE\") # fetch data"
+  },
+  {
+    "objectID": "teaching_materials/example2_statistics_estonia.html#accessing-statistics-estonia-data-with-pxweb",
+    "href": "teaching_materials/example2_statistics_estonia.html#accessing-statistics-estonia-data-with-pxweb",
+    "title": "Example 2: Fetch from Statistics Estonia with R",
+    "section": "Accessing Statistics Estonia Data with pxweb",
+    "text": "Accessing Statistics Estonia Data with pxweb\n\nStatistics Estonia is not yet part of DBnomics\nNo dedicated R package for andmed.stat.ee\nBut: you can access data using the pxweb R package\nBased on the PX-WEB API, which is also used by many Nordic stats agencies"
+  },
+  {
+    "objectID": "teaching_materials/example2_statistics_estonia.html#how-to-identify-query-variables",
+    "href": "teaching_materials/example2_statistics_estonia.html#how-to-identify-query-variables",
+    "title": "Example 2: Fetch from Statistics Estonia with R",
+    "section": "How to Identify Query Variables",
+    "text": "How to Identify Query Variables\n\n🧠 Use either:\n\nProgrammatically via the metadata (pxweb_get(), pxweb_get_metadata())\nFrom the Statistics Estonia web interface – click “API query for this table”\n\n\n\npa111_meta &lt;- pxweb_get(\n  url = \"https://andmed.stat.ee/api/v1/en/stat/PA111\")\npa111_meta\n\nPXWEB METADATA\nPA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES BY ECONOMIC ACTIVITY SECTION (QUARTERLY) \nvariables:\n [[1]] Näitaja: Indicator\n [[2]] Tegevusala: Economic activity\n [[3]] Vaatlusperiood: Reference period\n\npa111_meta$variables[[1]]\n\n$code\n[1] \"Näitaja\"\n\n$text\n[1] \"Indicator\"\n\n$values\n [1] \"GR_W_AVG\"    \"NR_EMPL\"     \"GR_W_D1\"     \"GR_W_D2\"     \"GR_W_D3\"    \n [6] \"GR_W_D4\"     \"GR_W_D5\"     \"GR_W_D6\"     \"GR_W_D7\"     \"GR_W_D8\"    \n[11] \"GR_W_D9\"     \"GR_W_AVG_SM\"\n\n$valueTexts\n [1] \"Average monthly gross wages (salaries), euros\"                                                  \n [2] \"Number of employees\"                                                                            \n [3] \"1st decile of monthly gross wages (salaries), euros\"                                            \n [4] \"2nd decile of monthly gross wages (salaries), euros\"                                            \n [5] \"3rd decile of monthly gross wages (salaries), euros\"                                            \n [6] \"4th decile of monthly gross wages (salaries), euros\"                                            \n [7] \"Median (5th decile) of monthly gross wages (salaries), euros\"                                   \n [8] \"6th decile of monthly gross wages (salaries), euros\"                                            \n [9] \"7th decile of monthly gross wages (salaries), euros\"                                            \n[10] \"8th decile of monthly gross wages (salaries), euros\"                                            \n[11] \"9th decile of monthly gross wages (salaries), euros\"                                            \n[12] \"Percentage change in average gross wages (salaries) compared to same period in previous year, %\"\n\n$elimination\n[1] FALSE\n\n$time\n[1] FALSE"
+  },
+  {
+    "objectID": "teaching_materials/example2_statistics_estonia.html#rendering-all-formats-from-r-or-bash",
+    "href": "teaching_materials/example2_statistics_estonia.html#rendering-all-formats-from-r-or-bash",
+    "title": "Example 2: Fetch from Statistics Estonia with R",
+    "section": "Rendering All Formats from R or Bash",
+    "text": "Rendering All Formats from R or Bash\nT render the document to all output formats (docx, Beamer, Reveal.js): run programmatically from another script or the R console:\n\nquarto::quarto_render(here(\"teaching_materials\", \"example2_statistics_estonia.qmd\"), output_format = \"all\")\n\nor from the command line:\nquarto render example2_statistics_estonia.qmd"
   }
 ]

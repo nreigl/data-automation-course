@@ -5,7 +5,11 @@
     "page_for_distribution_intro.html": "9e66a5ca"
   },
   "teaching_materials/reporting.qmd": {
-    "reporting.html": "3056208d"
+    "reporting.html": "3056208d",
+    "presentation_for_distribution_reporting.html": "371d9517",
+    "reporting.pptx": "748634e4",
+    "reporting.tex": "de74f4af",
+    "reporting.docx": "46644440"
   },
   "teaching_materials/visualization.qmd": {
     "visualization.html": "39f90d65"
@@ -33,5 +37,10 @@
   },
   "teaching_materials/fetching_annotated.R": {
     "fetching_annotated.html": "d8a34c90"
+  },
+  "teaching_materials/example2_statistics_estonia.qmd": {
+    "example2_statistics_estonia.html": "d8599795",
+    "example2_statistics_estonia.docx": "efe2b675",
+    "example2_statistics_estonia.tex": "8f3fde63"
   }
 }

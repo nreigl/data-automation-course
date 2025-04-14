@@ -1,0 +1,157 @@
+---
+title: "Example 2: Fetch from Statistics Estonia with R"
+author: "Nicolas"
+date: "2025-04-17"
+institute: "Eesti Pank"
+format:
+  revealjs:
+    # output-file: presentation_for_distribution_fetching.html
+    encoding: "UTF-8"
+    incremental: true
+    preview-links: true
+    scroll-view: false
+    theme: simple
+    smaller: true
+    slide-number: true
+    font-size: 0.6em
+    transition: slide
+    toc: true
+    toc-depth: 2
+    chalkboard: false
+    embed-resources: false
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+  beamer:
+    slide-level: 2
+    output-file: example2_beamer.pdf
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+library(quarto)     # for compiling Quarto presentations
+library(pxweb)
+library(tidyverse)  # dplyr, ggplot2, readr, etc.
+library(here)  # path
+```
+
+
+## Accessing Statistics Estonia Data with `pxweb`
+
+- [Statistics Estonia](https://www.stat.ee/en) is **not yet part of DBnomics**
+- No dedicated R package for [andmed.stat.ee](https://andmed.stat.ee/en/stat)
+- But: you can access data using the `pxweb` R package
+- Based on the **PX-WEB API**, which is also used by many Nordic stats agencies
+
+---
+
+### 🔍 How to Identify Variables
+
+## How to Identify Query Variables
+
+- 🧠 Use either:
+  1. Programmatically via the metadata (`pxweb_get()`, `pxweb_get_metadata()`)
+  2. From the Statistics Estonia web interface – click **"API query for this table"**
+
+```{r}
+pa111_meta <- pxweb_get(
+  url = "https://andmed.stat.ee/api/v1/en/stat/PA111")
+pa111_meta
+pa111_meta$variables[[1]]
+```
+
+--- 
+
+
+```{r}
+px_query_list1 <- list(
+  "Näitaja" = c("GR_W_D1", "GR_W_D5", "GR_W_D9"),
+  "Tegevusala" = "*",
+  "Vaatlusperiood" = "*"
+)
+
+pa111 <- pxweb_get(
+  url = "https://andmed.stat.ee/api/v1/en/stat/PA111",
+  query = px_query_list1
+)
+
+# Convert to data frame
+pa111.df <- as.data.frame(pa111, column.name.type = "text", variable.value.type = "text")
+pa111.code <- as.data.frame(pa111, column.name.type = "code", variable.value.type = "code")
+pa111.df$Näitaja <- pa111.code$Näitaja
+```
+
+```{r}
+selected_sectors <- c("Manufacturing", "Construction", "Information and communication", "Real estate activities", "Total - all activities")
+# Clean and reshape
+pa111_plotdata <- pa111.df %>%
+  mutate(
+    quarter = yq(str_replace(`Reference period`, " ", "-")),
+    Indicator = recode(
+      Näitaja,
+      "GR_W_D1" = "D1",
+      "GR_W_D5" = "Median",
+      "GR_W_D9" = "D9"
+    )
+  ) %>%
+  filter(
+    `Economic activity` %in% selected_sectors,
+    Indicator %in% c("D1", "Median", "D9")
+  ) %>%
+  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) %>%
+  pivot_wider(names_from = Indicator, values_from = value)
+```
+
+---
+
+```{r}
+overall_median <- pa111_plotdata %>%
+  filter(`Economic activity` == "Total - all activities") %>%
+  select(quarter, total_median = Median)
+```
+
+```{r}
+pa111_plotdata <- pa111_plotdata %>%
+  filter(`Economic activity` != "Total - all activities") %>%
+  left_join(overall_median, by = "quarter")
+```
+
+---
+
+```{r}
+ggplot(pa111_plotdata, aes(x = quarter)) +
+  geom_ribbon(aes(ymin = D1, ymax = D9), fill = "skyblue", alpha = 0.5) +
+  geom_line(aes(y = Median), color = "darkblue", linewidth = 1) +
+  geom_line(aes(y = total_median), color = "red", linetype = "dashed", linewidth = 0.7) +
+  facet_wrap(~`Economic activity`, ncol = 2) +
+  labs(
+    title = "Wage Distribution by Sector (1st to 9th Decile, Median)",
+    subtitle = "Red dashed line shows overall median (Total - all activities)",
+    x = "Quarter",
+    y = "Gross Nominal Monthly Wages (EUR)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+## Rendering All Formats from R or Bash
+
+T render the document to **all output formats** (docx, Beamer, Reveal.js): run  programmatically from another script or the R console:
+
+```{r}
+#| eval: false
+quarto::quarto_render(here("teaching_materials", "example2_statistics_estonia.qmd"), output_format = "all")
+```
+
+or from the command line: 
+
+```bash
+quarto render example2_statistics_estonia.qmd
+```
