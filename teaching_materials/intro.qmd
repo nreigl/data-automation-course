@@ -71,5 +71,13 @@ By the end of this course, you will be able to:
 - ✅ **Scalability**: Works for 1 or 100 datasets.  
 - ✅ **Fewer Errors**: Avoid manual mistakes.  
 - ✅ **Version Control**: Track changes, collaborate easily.  
----
 
+## Why Use Scripts Instead of Excel, and How AI Makes This Transition Easier?
+
+- **Excel:** Easy to learn, hard to master  
+  **Coding:** Hard to learn, easy to master
+
+- **AI has lowered barriers to coding:**
+  - **Prompting** as a new way of coding
+  - AI as your personal **debugging assistant**
+  - AI as a **"replication assistant"** (ask AI to explain your colleague's code)

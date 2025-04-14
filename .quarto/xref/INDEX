@@ -27,5 +27,11 @@
   },
   "about.qmd": {
     "about.html": "f57a6ae5"
+  },
+  "notes/todo.md": {
+    "todo.html": "1f329324"
+  },
+  "teaching_materials/fetching_annotated.R": {
+    "fetching_annotated.html": "d8a34c90"
   }
 }
