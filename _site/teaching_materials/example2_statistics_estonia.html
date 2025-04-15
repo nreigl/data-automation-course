@@ -11,7 +11,7 @@
 
   <meta name="author" content="Nicolas">
   <meta name="dcterms.date" content="2025-04-17">
-  <title>Data Automation Course – Example 2: Fetch from Statistics Estonia with R</title>
+  <title>Data Automation Course – Example 2: Fetch data from Statistics Estonia with R</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -193,7 +193,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Example 2: Fetch from Statistics Estonia with R</h1>
+  <h1 class="title">Example 2: Fetch data from Statistics Estonia with R</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -207,56 +207,71 @@ Nicolas
 </div>
 
   <p class="date">2025-04-17</p>
-</section><section id="TOC">
-<nav role="doc-toc"> 
-<h2 id="toc-title">Table of contents</h2>
-<ul>
-
-<li class="fragment"><a href="#/accessing-statistics-estonia-data-with-pxweb" id="/toc-accessing-statistics-estonia-data-with-pxweb">Accessing Statistics Estonia Data with <code>pxweb</code></a></li>
-
-<li class="fragment"><a href="#/how-to-identify-query-variables" id="/toc-how-to-identify-query-variables">How to Identify Query Variables</a></li>
-
-
-
-<li class="fragment"><a href="#/rendering-all-formats-from-r-or-bash" id="/toc-rendering-all-formats-from-r-or-bash">Rendering All Formats from R or Bash</a></li>
-</ul>
-</nav>
 </section>
-<section class="slide level2">
-
+<section id="setup-r" class="slide level2">
+<h2>Setup R</h2>
+<div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(quarto)     <span class="co"># for compiling Quarto presentations</span></span>
-<span id="cb1-2"><a></a><span class="fu">library</span>(pxweb)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(quarto)     <span class="co"># for compiling Quarto presentations and documents</span></span>
+<span id="cb1-2"><a></a><span class="fu">library</span>(pxweb) <span class="co"># query and fetch data from Statistics Estonia</span></span>
 <span id="cb1-3"><a></a><span class="fu">library</span>(tidyverse)  <span class="co"># dplyr, ggplot2, readr, etc.</span></span>
-<span id="cb1-4"><a></a><span class="fu">library</span>(here)  <span class="co"># path</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a></a><span class="fu">library</span>(here)  <span class="co"># path settings</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 </section>
 <section id="accessing-statistics-estonia-data-with-pxweb" class="slide level2">
 <h2>Accessing Statistics Estonia Data with <code>pxweb</code></h2>
 <ul>
 <li class="fragment"><a href="https://www.stat.ee/en">Statistics Estonia</a> is <strong>not yet part of DBnomics</strong></li>
-<li class="fragment">No dedicated R package for <a href="https://andmed.stat.ee/en/stat">andmed.stat.ee</a></li>
-<li class="fragment">But: you can access data using the <code>pxweb</code> R package</li>
-<li class="fragment">Based on the <strong>PX-WEB API</strong>, which is also used by many Nordic stats agencies</li>
+<li class="fragment">There is <strong>no dedicated R package</strong> for <a href="https://andmed.stat.ee/en/stat">andmed.stat.ee</a></li>
+<li class="fragment"><strong>However</strong>, you can access the data using the <code>pxweb</code> R package</li>
+<li class="fragment">It is based on the <strong>PX-WEB API</strong>, also used by many Nordic statistical agencies</li>
 </ul>
 </section>
 <section class="slide level2">
 
-<h3 id="how-to-identify-variables">🔍 How to Identify Variables</h3>
-</section>
-<section id="how-to-identify-query-variables" class="slide level2">
-<h2>How to Identify Query Variables</h2>
+<h3 id="data-access-options">Data Access Options</h3>
 <ul>
-<li class="fragment">🧠 Use either:
-<ol type="1">
-<li class="fragment">Programmatically via the metadata (<code>pxweb_get()</code>, <code>pxweb_get_metadata()</code>)</li>
-<li class="fragment">From the Statistics Estonia web interface – click <strong>“API query for this table”</strong></li>
-</ol></li>
+<li class="fragment"><p><strong>Interactive Access</strong><br>
+Browse tables and build queries via the Statistics Estonia website in the R console</p></li>
+<li class="fragment"><p><strong>Direct Programmatic Query</strong><br>
+Use the API endpoint (a <em>URL</em>) and supply <strong>key-value pairs</strong> to specify:</p>
+<ul>
+<li class="fragment">Variables (e.g., indicators, time, sector)</li>
+<li class="fragment">Values or selections for each variable</li>
+</ul></li>
 </ul>
+</section>
+<section id="find-and-download-data-interactively" class="slide level2">
+<h2>Find and download data interactively</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>pa111_meta <span class="ot">&lt;-</span> <span class="fu">pxweb_get</span>(</span>
-<span id="cb2-2"><a></a>  <span class="at">url =</span> <span class="st">"https://andmed.stat.ee/api/v1/en/stat/PA111"</span>)</span>
-<span id="cb2-3"><a></a>pa111_meta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">pxweb_interactive</span>() <span class="co"># All available databases</span></span>
+<span id="cb2-2"><a></a><span class="fu">pxweb_interactive</span>(<span class="st">"https://andmed.stat.ee/api/v1/en/stat"</span>) <span class="co"># Statistics Estonia</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="co">#| eval: false</span></span>
+<span id="cb3-2"><a></a><span class="sc">==</span><span class="er">==========================================================================================================================</span></span>
+<span id="cb3-3"><a></a> R PXWEB<span class="sc">:</span> Content of <span class="st">'andmed.stat.ee'</span></span>
+<span id="cb3-4"><a></a>          at <span class="st">'/api/v1/en/stat'</span></span>
+<span id="cb3-5"><a></a><span class="sc">==</span><span class="er">==========================================================================================================================</span></span>
+<span id="cb3-6"><a></a> [ <span class="dv">1</span> ] <span class="sc">:</span> Environment</span>
+<span id="cb3-7"><a></a> [ <span class="dv">2</span> ] <span class="sc">:</span> Economy</span>
+<span id="cb3-8"><a></a> [ <span class="dv">3</span> ] <span class="sc">:</span> Population</span>
+<span id="cb3-9"><a></a> [ <span class="dv">4</span> ] <span class="sc">:</span> Social life</span>
+<span id="cb3-10"><a></a> [ <span class="dv">5</span> ] <span class="sc">:</span> Multidomain statistics</span>
+<span id="cb3-11"><a></a> [ <span class="dv">6</span> ] <span class="sc">:</span> Population and Housing Census</span>
+<span id="cb3-12"><a></a> [ <span class="dv">7</span> ] <span class="sc">:</span> Discontinued datasets</span>
+<span id="cb3-13"><a></a><span class="sc">==</span><span class="er">==========================================================================================================================</span></span>
+<span id="cb3-14"><a></a>Enter your choice<span class="sc">:</span></span>
+<span id="cb3-15"><a></a>(<span class="st">'esc'</span> <span class="ot">=</span> Quit, <span class="st">'b'</span> <span class="ot">=</span> Back, <span class="st">'i'</span> <span class="ot">=</span> Show id)</span>
+<span id="cb3-16"><a></a><span class="dv">1</span><span class="sc">:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="get-call-to-pxweb-api" class="slide level2">
+<h2>GET call to PXWEB API</h2>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>pa111_meta <span class="ot">&lt;-</span> <span class="fu">pxweb_get</span>(</span>
+<span id="cb4-2"><a></a>  <span class="at">url =</span> <span class="st">"https://andmed.stat.ee/api/v1/en/stat/PA111"</span>)</span>
+<span id="cb4-3"><a></a>pa111_meta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>PXWEB METADATA
 PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES BY ECONOMIC ACTIVITY SECTION (QUARTERLY) 
@@ -265,7 +280,26 @@ variables:
  [[2]] Tegevusala: Economic activity
  [[3]] Vaatlusperiood: Reference period</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>pa111_meta<span class="sc">$</span>variables[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The object is just metadata, no data yet!</p>
+<p><em>How to identify key-value pairs?</em></p>
+<ul>
+<li class="fragment">Use either:
+<ol type="1">
+<li class="fragment">Programmatically via the metadata (<code>pxweb_get()</code>)</li>
+<li class="fragment">From the Statistics Estonia web interface – click <strong>“API query for this table”</strong></li>
+</ol></li>
+</ul>
+</div>
+</section>
+<section id="key-value-pairs" class="slide level2">
+<h2>Key-value pairs</h2>
+<ul>
+<li class="fragment">Values for the first key (Näitaja)</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>pa111_meta<span class="sc">$</span>variables[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$code
 [1] "Näitaja"
@@ -299,87 +333,104 @@ $time
 [1] FALSE</code></pre>
 </div>
 </div>
+</div>
+</section>
+<section id="fetch-data" class="slide level2">
+<h2>Fetch data</h2>
+<ul>
+<li class="fragment">Set: Key-value pair (as R list object) &amp; Url to the database</li>
+<li class="fragment">Wildcard operator <code>*</code> to select all values</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>px_query_list1 <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb8-2"><a></a>  <span class="st">"Näitaja"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"GR_W_D1"</span>, <span class="st">"GR_W_D5"</span>, <span class="st">"GR_W_D9"</span>),</span>
+<span id="cb8-3"><a></a>  <span class="st">"Tegevusala"</span> <span class="ot">=</span> <span class="st">"*"</span>,</span>
+<span id="cb8-4"><a></a>  <span class="st">"Vaatlusperiood"</span> <span class="ot">=</span> <span class="st">"*"</span></span>
+<span id="cb8-5"><a></a>)</span>
+<span id="cb8-6"><a></a></span>
+<span id="cb8-7"><a></a>pa111 <span class="ot">&lt;-</span> <span class="fu">pxweb_get</span>(</span>
+<span id="cb8-8"><a></a>  <span class="at">url =</span> <span class="st">"https://andmed.stat.ee/api/v1/en/stat/PA111"</span>,</span>
+<span id="cb8-9"><a></a>  <span class="at">query =</span> px_query_list1</span>
+<span id="cb8-10"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<ul>
+<li class="fragment">We get a list object with the data</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>pa111</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>PXWEB DATA
+With 4 variables and 960 observations.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">class</span>(pa111)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "pxweb_data" "list"      </code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="convert-the-pxweb-list-object-to-a-data-frame" class="slide level2">
+<h2>Convert the pxweb list object to a data frame</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># Convert to data frame</span></span>
+<span id="cb13-2"><a></a>pa111.df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pa111, <span class="at">column.name.type =</span> <span class="st">"text"</span>, <span class="at">variable.value.type =</span> <span class="st">"text"</span>)</span>
+<span id="cb13-3"><a></a>pa111.code <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pa111, <span class="at">column.name.type =</span> <span class="st">"code"</span>, <span class="at">variable.value.type =</span> <span class="st">"code"</span>)</span>
+<span id="cb13-4"><a></a><span class="co"># Optional: Combine text and code in one data frame</span></span>
+<span id="cb13-5"><a></a>pa111.df<span class="sc">$</span>Näitaja <span class="ot">&lt;-</span> pa111.code<span class="sc">$</span>Näitaja</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">head</span>(pa111.df, <span class="at">n=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                            Indicator      Economic activity
+1 1st decile of monthly gross wages (salaries), euros Total - all activities
+2 1st decile of monthly gross wages (salaries), euros Total - all activities
+3 1st decile of monthly gross wages (salaries), euros Total - all activities
+  Reference period
+1          2021 Q1
+2          2021 Q2
+3          2021 Q3
+  PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES
+1                                                                                    532
+2                                                                                    472
+3                                                                                    508
+  Näitaja
+1 GR_W_D1
+2 GR_W_D1
+3 GR_W_D1</code></pre>
+</div>
+</div>
 </section>
 <section class="slide level2">
 
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>px_query_list1 <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb6-2"><a></a>  <span class="st">"Näitaja"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"GR_W_D1"</span>, <span class="st">"GR_W_D5"</span>, <span class="st">"GR_W_D9"</span>),</span>
-<span id="cb6-3"><a></a>  <span class="st">"Tegevusala"</span> <span class="ot">=</span> <span class="st">"*"</span>,</span>
-<span id="cb6-4"><a></a>  <span class="st">"Vaatlusperiood"</span> <span class="ot">=</span> <span class="st">"*"</span></span>
-<span id="cb6-5"><a></a>)</span>
-<span id="cb6-6"><a></a></span>
-<span id="cb6-7"><a></a>pa111 <span class="ot">&lt;-</span> <span class="fu">pxweb_get</span>(</span>
-<span id="cb6-8"><a></a>  <span class="at">url =</span> <span class="st">"https://andmed.stat.ee/api/v1/en/stat/PA111"</span>,</span>
-<span id="cb6-9"><a></a>  <span class="at">query =</span> px_query_list1</span>
-<span id="cb6-10"><a></a>)</span>
-<span id="cb6-11"><a></a></span>
-<span id="cb6-12"><a></a><span class="co"># Convert to data frame</span></span>
-<span id="cb6-13"><a></a>pa111.df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pa111, <span class="at">column.name.type =</span> <span class="st">"text"</span>, <span class="at">variable.value.type =</span> <span class="st">"text"</span>)</span>
-<span id="cb6-14"><a></a>pa111.code <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pa111, <span class="at">column.name.type =</span> <span class="st">"code"</span>, <span class="at">variable.value.type =</span> <span class="st">"code"</span>)</span>
-<span id="cb6-15"><a></a>pa111.df<span class="sc">$</span>Näitaja <span class="ot">&lt;-</span> pa111.code<span class="sc">$</span>Näitaja</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>selected_sectors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Manufacturing"</span>, <span class="st">"Construction"</span>, <span class="st">"Information and communication"</span>, <span class="st">"Real estate activities"</span>, <span class="st">"Total - all activities"</span>)</span>
-<span id="cb7-2"><a></a><span class="co"># Clean and reshape</span></span>
-<span id="cb7-3"><a></a>pa111_plotdata <span class="ot">&lt;-</span> pa111.df <span class="sc">%&gt;%</span></span>
-<span id="cb7-4"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-5"><a></a>    <span class="at">quarter =</span> <span class="fu">yq</span>(<span class="fu">str_replace</span>(<span class="st">`</span><span class="at">Reference period</span><span class="st">`</span>, <span class="st">" "</span>, <span class="st">"-"</span>)),</span>
-<span id="cb7-6"><a></a>    <span class="at">Indicator =</span> <span class="fu">recode</span>(</span>
-<span id="cb7-7"><a></a>      Näitaja,</span>
-<span id="cb7-8"><a></a>      <span class="st">"GR_W_D1"</span> <span class="ot">=</span> <span class="st">"D1"</span>,</span>
-<span id="cb7-9"><a></a>      <span class="st">"GR_W_D5"</span> <span class="ot">=</span> <span class="st">"Median"</span>,</span>
-<span id="cb7-10"><a></a>      <span class="st">"GR_W_D9"</span> <span class="ot">=</span> <span class="st">"D9"</span></span>
-<span id="cb7-11"><a></a>    )</span>
-<span id="cb7-12"><a></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb7-13"><a></a>  <span class="fu">filter</span>(</span>
-<span id="cb7-14"><a></a>    <span class="st">`</span><span class="at">Economic activity</span><span class="st">`</span> <span class="sc">%in%</span> selected_sectors,</span>
-<span id="cb7-15"><a></a>    Indicator <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D1"</span>, <span class="st">"Median"</span>, <span class="st">"D9"</span>)</span>
-<span id="cb7-16"><a></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb7-17"><a></a>  <span class="fu">select</span>(quarter, <span class="st">`</span><span class="at">Economic activity</span><span class="st">`</span>, Indicator, <span class="at">value =</span> <span class="st">`</span><span class="at">PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb7-18"><a></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Indicator, <span class="at">values_from =</span> value)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section class="slide level2">
-
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>overall_median <span class="ot">&lt;-</span> pa111_plotdata <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">Economic activity</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Total - all activities"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a></a>  <span class="fu">select</span>(quarter, <span class="at">total_median =</span> Median)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>pa111_plotdata <span class="ot">&lt;-</span> pa111_plotdata <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">Economic activity</span><span class="st">`</span> <span class="sc">!=</span> <span class="st">"Total - all activities"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a></a>  <span class="fu">left_join</span>(overall_median, <span class="at">by =</span> <span class="st">"quarter"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section class="slide level2">
-
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">ggplot</span>(pa111_plotdata, <span class="fu">aes</span>(<span class="at">x =</span> quarter)) <span class="sc">+</span></span>
-<span id="cb10-2"><a></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> D1, <span class="at">ymax =</span> D9), <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb10-3"><a></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Median), <span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb10-4"><a></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> total_median), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb10-5"><a></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span><span class="st">`</span><span class="at">Economic activity</span><span class="st">`</span>, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb10-6"><a></a>  <span class="fu">labs</span>(</span>
-<span id="cb10-7"><a></a>    <span class="at">title =</span> <span class="st">"Wage Distribution by Sector (1st to 9th Decile, Median)"</span>,</span>
-<span id="cb10-8"><a></a>    <span class="at">subtitle =</span> <span class="st">"Red dashed line shows overall median (Total - all activities)"</span>,</span>
-<span id="cb10-9"><a></a>    <span class="at">x =</span> <span class="st">"Quarter"</span>,</span>
-<span id="cb10-10"><a></a>    <span class="at">y =</span> <span class="st">"Gross Nominal Monthly Wages (EUR)"</span></span>
-<span id="cb10-11"><a></a>  ) <span class="sc">+</span></span>
-<span id="cb10-12"><a></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb10-13"><a></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">ggplot</span>(pa111_plotdata, <span class="fu">aes</span>(<span class="at">x =</span> quarter)) <span class="sc">+</span></span>
+<span id="cb16-2"><a></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> D1, <span class="at">ymax =</span> D9), <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb16-3"><a></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Median), <span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb16-4"><a></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> total_median), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb16-5"><a></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span><span class="st">`</span><span class="at">Economic activity</span><span class="st">`</span>, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb16-6"><a></a>  <span class="fu">labs</span>(</span>
+<span id="cb16-7"><a></a>    <span class="at">title =</span> <span class="st">"Wage Distribution by Sector (1st to 9th Decile, Median)"</span>,</span>
+<span id="cb16-8"><a></a>    <span class="at">subtitle =</span> <span class="st">"Red dashed line shows overall median (Total - all activities)"</span>,</span>
+<span id="cb16-9"><a></a>     <span class="at">caption =</span> source_note,</span>
+<span id="cb16-10"><a></a>    <span class="at">x =</span> <span class="st">"Quarter"</span>,</span>
+<span id="cb16-11"><a></a>    <span class="at">y =</span> <span class="st">"Gross Nominal Monthly Wages (EUR)"</span></span>
+<span id="cb16-12"><a></a>  ) <span class="sc">+</span></span>
+<span id="cb16-13"><a></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb16-14"><a></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="example2_statistics_estonia_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch"></section>
+<img data-src="example2_statistics_estonia_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"></section>
 <section id="rendering-all-formats-from-r-or-bash" class="slide level2">
 <h2>Rendering All Formats from R or Bash</h2>
-<p>T render the document to <strong>all output formats</strong> (docx, Beamer, Reveal.js): run programmatically from another script or the R console:</p>
+<p>To render the document to <strong>all output formats</strong> (docx, Beamer, Reveal.js): run programmatically from another script or the R console:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>quarto<span class="sc">::</span><span class="fu">quarto_render</span>(<span class="fu">here</span>(<span class="st">"teaching_materials"</span>, <span class="st">"example2_statistics_estonia.qmd"</span>), <span class="at">output_format =</span> <span class="st">"all"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>quarto<span class="sc">::</span><span class="fu">quarto_render</span>(<span class="fu">here</span>(<span class="st">"teaching_materials"</span>, <span class="st">"example2_statistics_estonia.qmd"</span>), <span class="at">output_format =</span> <span class="st">"all"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>or from the command line:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a></a><span class="ex">quarto</span> render example2_statistics_estonia.qmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a></a><span class="ex">quarto</span> render example2_statistics_estonia.qmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>

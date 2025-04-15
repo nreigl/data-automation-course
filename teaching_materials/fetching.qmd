@@ -628,29 +628,90 @@ p4
 ## Accessing Statistics Estonia Data with `pxweb`
 
 - [Statistics Estonia](https://www.stat.ee/en) is **not yet part of DBnomics**
-- No dedicated R package for [andmed.stat.ee](https://andmed.stat.ee/en/stat)
-- But: you can access data using the `pxweb` R package
-- Based on the **PX-WEB API**, which is also used by many Nordic stats agencies
+  - There is **no dedicated R package** for [andmed.stat.ee](https://andmed.stat.ee/en/stat)
+- **However**, you can access the data using the `pxweb` R package
+- It is based on the **PX-WEB API**, also used by many Nordic statistical agencies
 
 ---
+  
+  ### Data Access Options
+  
+  - **Interactive Access**  
+  Browse tables and build queries via the Statistics Estonia website in the R console
 
-### 🔍 How to Identify Variables
+- **Direct Programmatic Query**  
+  Use the API endpoint (a *URL*) and supply **key-value pairs** to specify:
+  - Variables (e.g., indicators, time, sector)
+- Values or selections for each variable
 
-## How to Identify Query Variables
 
-- 🧠 Use either:
-  1. Programmatically via the metadata (`pxweb_get()`, `pxweb_get_metadata()`)
-  2. From the Statistics Estonia web interface – click **"API query for this table"**
+##   Find and download data interactively
+
+```{r}
+#| eval: false
+pxweb_interactive() # All available databases
+pxweb_interactive("https://andmed.stat.ee/api/v1/en/stat") # Statistics Estonia
+```
+
+```r
+#| eval: false
+============================================================================================================================
+  R PXWEB: Content of 'andmed.stat.ee'
+at '/api/v1/en/stat'
+============================================================================================================================
+  [ 1 ] : Environment
+[ 2 ] : Economy
+[ 3 ] : Population
+[ 4 ] : Social life
+[ 5 ] : Multidomain statistics
+[ 6 ] : Population and Housing Census
+[ 7 ] : Discontinued datasets
+============================================================================================================================
+  Enter your choice:
+  ('esc' = Quit, 'b' = Back, 'i' = Show id)
+1:
+  ```
+
+## GET call to PXWEB API
+
+::: {.fragment} 
 
 ```{r}
 pa111_meta <- pxweb_get(
   url = "https://andmed.stat.ee/api/v1/en/stat/PA111")
 pa111_meta
+```
+
+The object is just metadata, no data yet!
+  
+  *How to identify key-value pairs?*
+  
+  - Use either:
+  1.  Programmatically via the metadata (`pxweb_get()`)
+2.  From the Statistics Estonia web interface – click **"API query for this table"**
+  
+  :::
+  
+  ## Key-value pairs
+  
+  
+  - Values for the first key (Näitaja)
+
+::: {.fragment}
+
+```{r}
 pa111_meta$variables[[1]]
 ```
 
---- 
+:::
+  
+  ## Fetch data
+  
+  
+  -   Set: Key-value pair (as R list object) & Url to the database
+-   Wildcard operator `*` to select all values
 
+::: {.fragment}
 
 ```{r}
 px_query_list1 <- list(
@@ -663,14 +724,42 @@ pa111 <- pxweb_get(
   url = "https://andmed.stat.ee/api/v1/en/stat/PA111",
   query = px_query_list1
 )
+```
 
+
+:::
+  
+  -   We get a list object with the data
+
+::: {.fragment}
+
+
+```{r}
+pa111
+class(pa111)
+```
+
+
+:::
+  
+  
+## Convert the pxweb list object to a data frame
+  
+```{r}
 # Convert to data frame
 pa111.df <- as.data.frame(pa111, column.name.type = "text", variable.value.type = "text")
 pa111.code <- as.data.frame(pa111, column.name.type = "code", variable.value.type = "code")
+# Optional: Combine text and code in one data frame
 pa111.df$Näitaja <- pa111.code$Näitaja
 ```
 
 ```{r}
+head(pa111.df, n=3)
+```
+
+
+```{r}
+#| echo: true
 selected_sectors <- c("Manufacturing", "Construction", "Information and communication", "Real estate activities", "Total - all activities")
 # Clean and reshape
 pa111_plotdata <- pa111.df %>%
@@ -691,23 +780,33 @@ pa111_plotdata <- pa111.df %>%
   pivot_wider(names_from = Indicator, values_from = value)
 ```
 
----
-
 ```{r}
+#| echo: true
 overall_median <- pa111_plotdata %>%
   filter(`Economic activity` == "Total - all activities") %>%
   select(quarter, total_median = Median)
-```
 
-```{r}
 pa111_plotdata <- pa111_plotdata %>%
   filter(`Economic activity` != "Total - all activities") %>%
   left_join(overall_median, by = "quarter")
 ```
 
+```{r}
+#| echo: true
+meta <- pa111$metadata[[1]]
+title <- meta$label
+source <- meta$source
+
+source_note <- glue::glue(
+  "Source: {source}\n\"{title}\""
+)
+```
+
+
 ---
 
 ```{r}
+#| output-location: slide
 ggplot(pa111_plotdata, aes(x = quarter)) +
   geom_ribbon(aes(ymin = D1, ymax = D9), fill = "skyblue", alpha = 0.5) +
   geom_line(aes(y = Median), color = "darkblue", linewidth = 1) +
@@ -716,12 +815,13 @@ ggplot(pa111_plotdata, aes(x = quarter)) +
   labs(
     title = "Wage Distribution by Sector (1st to 9th Decile, Median)",
     subtitle = "Red dashed line shows overall median (Total - all activities)",
-    x = "Quarter",
+    caption = source_note,
+    x = "",
     y = "Gross Nominal Monthly Wages (EUR)"
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
----
+## End 
 

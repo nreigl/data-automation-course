@@ -1,0 +1,134 @@
+#' ---
+#' title: "Reproducible Manuscripts and Reports"
+#' author: "Nicolas"
+#' date: "2025-04-17"
+#' institute: "Eesti Pank"
+#' format:
+#'    revealjs: # for presentation
+#'     output-file: presentation_for_distribution_reporting.html
+#'     encoding: "UTF-8" # Estonian special characters
+#'     incremental: true
+#'     preview-links: true
+#'     scroll-view: false
+#'     theme: simple
+#'     smaller: true
+#'     slide-number: true
+#'     font-size: 0.6em
+#'     transition: slide
+#'     toc: true
+#'     toc-depth: 2
+#'     chalkboard: false
+#'     embed-resources: false
+#' editor_options:
+#'   chunk_output_type: console
+#' ---
+#' 
+#' # Reproducible Manuscripts and Reports
+#' 
+#' ## What is a Reproducible Report?
+#' 
+#' A **reproducible report** is a document that integrates data analysis, visualizations, and narrative text into a single cohesive output, which can be automatically regenerated and verified.
+#' 
+#' ---
+#' 
+#' ## Key Components
+#' 
+#' - **Data**: Clearly sourced, documented, and accessible.
+#' - **Code**: Transparent and executable by anyone.
+#' - **Narrative**: Explanation and interpretation clearly linked to outputs.
+#' 
+#' ---
+#' 
+#' ## Why Use Reproducible Reports?
+#' 
+#' - **Transparency**: Enhances trust and facilitates peer review.
+#' - **Efficiency**: Easy updates when data or methods change.
+#' - **Collaboration**: Simplifies teamwork and project continuity.
+#' 
+#' ---
+#' 
+#' ## Tools for Creating Reproducible Reports
+#' 
+#' Open source: 
+#' 
+#' - **Quarto**: Integrates R, Python, Julia and other languages directly into documents.
+#' - **Jupyter Notebooks**: Supports Python and other languages for interactive analysis.
+#' 
+#' Output types 
+#' 
+#'   - Articles, presentations, dashboards, websites, blogs, and books in HTML, PDF, **MS Word**, **MS Powerpoint**, ePub, and more
+#'  
+#' ::: {.fragment}
+#' 
+#' ::: {.panel-tabset}
+#' 
+#' ## Pdf
+#' 
+#' ```  {.yaml}
+#' title: "My Document"
+#' author: "Nicolas Reigl"
+#' format:
+#'   pdf:
+#'     toc: true
+#'     number-sections: true
+#'     colorlinks: true
+#' ```
+#' 
+#' ## Beamer
+#' 
+#' ``` {.yaml}
+#' title: "My Document"
+#' author: "Nicolas Reigl"
+#' format: beamer
+#' 
+#' ```
+#' 
+#' ## Powerpoint
+#' 
+#' ``` {.yaml}
+#' title: "My Document"
+#' author: "Nicolas Reigl"
+#' format: pptx
+#' ```
+#' 
+#' ::: 
+#' :::
+#' 
+#' # Authoring (with Quarto)
+#' 
+#' *Synthax is similar in Juypter notebooks*
+#' 
+#' ## Project: `_quarto.yml`
+#' 
+#' ``` {.yaml filename="_quarto.yml"}
+#' project:
+#'   type: manuscript
+#' 
+#' manuscript:
+#'   article: index.qmd
+#' 
+#' format:
+#'   html:
+#'     comments:
+#'       hypothesis: true
+#'   docx: default
+#' 
+#'   # (other formats)
+#'   # pdf: default
+#' 
+#' execute:
+#'   freeze: true
+#' ```
+#' 
+#' 
+#' ##  R and Python Chunks in Quarto
+#' 
+#' This is an example of an R chunk in Quarto. It fetches data from the Eurostat database using the `rdbnomics` package.
+#' 
+#' ```r
+#' # Example RMarkdown chunk
+#' library(rdbnomics)  # 
+#' unemp <- rdb(ids = "Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE") # fetch data
+#' 
+#' ```
+#' 
