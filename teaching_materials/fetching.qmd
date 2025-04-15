@@ -184,9 +184,6 @@ ggplot(unemp, aes(x = period, y = value)) +
   theme_ep() 
 ```
 
-
-
-
 ---
 
 ### How do we find the series ID/mask/dimensions?
@@ -441,7 +438,7 @@ unique(cci_ee$REF_AREA)
 
 ### Wildcarding dimensions
 
-  - To fetch **multiple values** for a dimension (e.g. countries), just **remove** the value from that position 
+  - To fetch **all** for a dimension (e.g. countries), just **remove** the value from that position 
     - Example: remove `"EE"` to fetch all countries (`REF_AREA`)
 
 ::: {.fragment}
@@ -486,9 +483,10 @@ desired_order <- c(
   "Sweden"
 )
 unique(cci_eu$`Reference area`)
-cci_eu |>
+
+p3 <- cci_eu |>
   ggplot() +
-  geom_hline(yintercept = 100, linetype = "solid", size = .25) +
+  geom_hline(yintercept = 100, linetype = "solid", size = 0.25) +
   geom_point(
     data = cci_eu %>%
       group_by(`Reference area`) %>%
@@ -506,18 +504,20 @@ cci_eu |>
       group_by(`Reference area`) %>%
       slice_max(period),
     aes(x = period, y = value, color = `Reference area`, label = round(value)),
-    hjust = -.5,
-    vjust = .5,
+    hjust = -0.5,
+    vjust = 0.5,
     size = 2.5,
     fontface = "bold"
   ) +
   scale_x_date(
-  date_labels = "%Y",
-  date_breaks = "2 years"
-)+
+    date_labels = "%Y",
+    date_breaks = "2 years",
+    name = NULL  
+  ) +
   scale_y_continuous(
     breaks = c(90, 95, 100, 105, 110),
-    labels = c("90", "", "100", "", "110")
+    labels = c("90", "", "100", "", "110"), 
+    name = NULL
   ) +
   facet_wrap(
     ~ factor(`Reference area`, levels = desired_order)
@@ -525,8 +525,11 @@ cci_eu |>
   coord_cartesian(clip = "off") +
   theme_bw() +
   theme(
-    legend.position = "bottom"
-  )
+    legend.position = "none"  
+  )+
+  labs(title = "Consumer Confidence – Index", 
+       subtitle = "Selected European Countries & EU27",
+       caption = "Source: OECD / DBnomics") 
 ```
  
  

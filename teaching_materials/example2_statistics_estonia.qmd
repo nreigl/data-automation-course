@@ -257,3 +257,5 @@ or from the command line:
 ``` bash
 quarto render example2_statistics_estonia.qmd
 ```
+
+## End of session
