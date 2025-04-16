@@ -13,7 +13,7 @@ format:
     theme: simple
     smaller: true
     slide-number: true
-    font-size: 0.6em
+    font-size: 1.2em
     transition: slide
     toc: false
     toc-depth: 2
@@ -32,7 +32,6 @@ format:
     output-file: example1_beamer.pdf
 editor_options:
   chunk_output_type: console
-bibliography: references.bib
 ---
 
 ## Setup R
@@ -80,7 +79,7 @@ library(countrycode)  # for country codes
 ## Example: Fetch Unemployment Data
 
 -   Assume we know exactly the series ID we want to fetch *[^1]*
-    -   Unemployment rate, ILO definition, total, Estonia, from Eurostat
+    -   Example data: Unemployment rate, ILO definition, total, Estonia, from Eurostat
 
 ::: fragment
 ```{r}
@@ -266,7 +265,7 @@ saveWorkbook(wb, "teaching_materials/unemp_data.xlsx", overwrite = TRUE)
 
 ## Fetch two (or more) series at once
 
--   Example: Balance of Payments (BOP) for France and Germany from the [IMF](https://db.nomics.world/IMF/BOP?tab=list) for Current Account, Total, Net, Euros, Millions, Annual
+-   Example data: Balance of Payments (BOP) for France and Germany from the [IMF](https://db.nomics.world/IMF/BOP?tab=list) for Current Account, Total, Net, Euros, Millions, Annual
 
 :::: fragment
 ::: panel-tabset
@@ -333,7 +332,7 @@ p2
 
 -   To fetch **all** for a dimension (e.g. countries), just **remove** the value from that position
     -   Example: remove `"EE"` to fetch all countries (`REF_AREA`)
--   Consumer confidence index from the OECD, downloading data on all countries
+-   Example data: Consumer confidence index from the OECD, downloading data on all countries
 
 ::: fragment
 [⚠️ This can take a while]{style="color:red;"}

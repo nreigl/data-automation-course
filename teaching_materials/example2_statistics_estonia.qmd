@@ -94,6 +94,8 @@ Enter your choice:
 
 ## GET call to PXWEB API
 
+ - Example dataset:  PA111 -  AVERAGE MONTHLY GROSS WAGES (SALARIES)
+
 ::: fragment
 ```{r}
 pa111_meta <- pxweb_get(
