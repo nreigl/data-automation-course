@@ -2,6 +2,7 @@ install.packages(c(
   "tidyverse",
   "rdbnomics",
   "eurostat",
+  "openxlsx",
   "pxweb",
   "quarto",
   "plotly",

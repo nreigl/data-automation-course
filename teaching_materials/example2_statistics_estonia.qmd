@@ -36,8 +36,7 @@ editor_options:
 
 ## Setup R
 
-::: {.fragment}
-
+::: fragment
 ```{r}
 library(quarto)     # for compiling Quarto presentations and documents
 library(pxweb) # query and fetch data from Statistics Estonia
@@ -48,25 +47,25 @@ library(here)  # path settings
 
 ## Accessing Statistics Estonia Data with `pxweb`
 
-- [Statistics Estonia](https://www.stat.ee/en) is **not yet part of DBnomics**
-- There is **no dedicated R package** for [andmed.stat.ee](https://andmed.stat.ee/en/stat)
-- **However**, you can access the data using the `pxweb` R package
-- It is based on the **PX-WEB API**, also used by many Nordic statistical agencies
+-   [Statistics Estonia](https://www.stat.ee/en) is **not yet part of DBnomics**
+-   There is **no dedicated R package** for [andmed.stat.ee](https://andmed.stat.ee/en/stat)
+-   **However**, you can access the data using the `pxweb` R package
+-   It is based on the **PX-WEB API**, also used by many Nordic statistical agencies
 
----
+------------------------------------------------------------------------
 
 ### Data Access Options
 
-- **Interactive Access**  
-  Browse tables and build queries via the Statistics Estonia website in the R console
+-   **Interactive Access**\
+    Browse tables and build queries via the Statistics Estonia website in the R console
 
-- **Direct Programmatic Query**  
-  Use the API endpoint (a *URL*) and supply **key-value pairs** to specify:
-  - Variables (e.g., indicators, time, sector)
-  - Values or selections for each variable
+-   **Direct Programmatic Query**\
+    Use the API endpoint (a *URL*) and supply **key-value pairs** to specify:
 
+    -   Variables (e.g., indicators, time, sector)
+    -   Values or selections for each variable
 
-##   Find and download data interactively
+## Find and download data interactively
 
 ```{r}
 #| eval: false
@@ -74,7 +73,7 @@ pxweb_interactive() # All available databases
 pxweb_interactive("https://andmed.stat.ee/api/v1/en/stat") # Statistics Estonia
 ```
 
-```r
+``` r
 #| eval: false
 ============================================================================================================================
  R PXWEB: Content of 'andmed.stat.ee'
@@ -95,8 +94,7 @@ Enter your choice:
 
 ## GET call to PXWEB API
 
-::: {.fragment} 
-
+::: fragment
 ```{r}
 pa111_meta <- pxweb_get(
   url = "https://andmed.stat.ee/api/v1/en/stat/PA111")
@@ -105,35 +103,29 @@ pa111_meta
 
 The object is just metadata, no data yet!
 
- *How to identify key-value pairs?*
+*How to identify key-value pairs?*
 
- - Use either:
-    1.  Programmatically via the metadata (`pxweb_get()`)
+-   Use either:
+    1.  Programmatically via the metadata object
     2.  From the Statistics Estonia web interface – click **"API query for this table"**
-
 :::
 
 ## Key-value pairs
 
+-   Values for the first key (Näitaja)
 
- - Values for the first key (Näitaja)
-
-::: {.fragment}
-
+::: fragment
 ```{r}
 pa111_meta$variables[[1]]
 ```
-
 :::
 
 ## Fetch data
 
-
 -   Set: Key-value pair (as R list object) & Url to the database
--   Wildcard operator `*` to select all values
+  -   Wildcard operator `*` to select all values
 
-::: {.fragment}
-
+::: fragment
 ```{r}
 px_query_list1 <- list(
   "Näitaja" = c("GR_W_D1", "GR_W_D5", "GR_W_D9"),
@@ -146,23 +138,16 @@ pa111 <- pxweb_get(
   query = px_query_list1
 )
 ```
-
-
 :::
 
 -   We get a list object with the data
 
-::: {.fragment}
-
-
+::: fragment
 ```{r}
 pa111
 class(pa111)
 ```
-
-
 :::
-
 
 ## Convert the pxweb list object to a data frame
 
@@ -177,7 +162,6 @@ pa111.df$Näitaja <- pa111.code$Näitaja
 ```{r}
 head(pa111.df, n=3)
 ```
-
 
 ```{r}
 #| echo: false
@@ -222,7 +206,6 @@ source_note <- glue::glue(
   "Source: {source}\n\"{title}\""
 )
 ```
-
 
 ------------------------------------------------------------------------
 

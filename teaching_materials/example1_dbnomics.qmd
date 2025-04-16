@@ -17,7 +17,7 @@ format:
     transition: slide
     toc: false
     toc-depth: 2
-    chalkboard: false
+    chalkboard: true
     embed-resources: false
   docx:
     toc: true
@@ -32,12 +32,12 @@ format:
     output-file: example1_beamer.pdf
 editor_options:
   chunk_output_type: console
+bibliography: references.bib
 ---
 
 ## Setup R
 
-::: {.fragment}
-
+::: fragment
 ```{r}
 # install.packages("rdbnomics")
 library(quarto)     # for compiling Quarto presentations and documents
@@ -49,56 +49,59 @@ library(countrycode)  # for country codes
 ```
 :::
 
-
 ## Interfaces to Official Statistics
 
-- Packages or set of classes and methods to read data and metadata documents through exchange frameworks
-  - Use [R](https://www.r-project.org/) (or [Python](https://www.python.org/)) packages to read data from APIs, databases, and web pages
-    - Individual packages:
-      - [eurostat](https://cran.r-project.org/package=eurostat): Access data from Eurostat
-      - [OECD](https://cran.r-project.org/package=OECD): Access data from the OECD API
-  - General-purpose packages:
-    - [rdbnomics](https://cran.r-project.org/package=rdbnomics): Unified access to many economic databases (e.g. ECB, **Eurostat**, IMF, World Bank)
+-   Packages or set of classes and methods to read data and metadata documents through exchange frameworks
+    -   Use [R](https://www.r-project.org/) (or [Python](https://www.python.org/)) packages to read data from APIs, databases, and web pages
+        -   Individual packages:
+            -   [eurostat](https://cran.r-project.org/package=eurostat): Access data from Eurostat
+            -   [OECD](https://cran.r-project.org/package=OECD): Access data from the OECD API
+    -   General-purpose packages:
+        -   [rdbnomics](https://cran.r-project.org/package=rdbnomics): Unified access to many economic databases (e.g. ECB, **Eurostat**, IMF, World Bank) 
+        - [pxweb](https://cran.r-project.org/web/packages/pxweb/vignettes/pxweb.html): R package developed by Statistics Sweden to disseminate public statistics
 
+## DBnomics
 
-##  DBnomics 
-
-::: {.fragment}
-
- - [DBnomics](https://db.nomics.world/) is a database of databases
-    - free platform to aggregate publicly-available economic data provided by national and international statistical institutions, but also by researchers and private companies
-    - Unified interface to access data from many sources
-    - Harmonized data formats and metadata 
-    - Data series are available upon release by the provider 
-    - Each revision is archived to build a real-time database
-
+::: fragment
+-   [DBnomics](https://db.nomics.world/) is a database of databases
+    -   free platform to aggregate publicly-available economic data provided by national and international statistical institutions, but also by researchers and private companies
+    -   Unified interface to access data from many sources
+    -   Harmonized data formats and metadata
+    -   Data series are available upon release by the provider
+    -   Each revision is archived to build a real-time database
 :::
 
+------------------------------------------------------------------------
 
-##  Fetch a single series
+::: {style="text-align: center;"}
+<img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWx1Ym12YWxkZ2xhcThjNXYybGo4ZnA1bmtvNWU0ZW4zZm5idmpvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JecCAExsqUC4HDy/giphy.gif" width="800"/>
+:::
 
-Example: Fetch Unemployment Data 
+## Example: Fetch Unemployment Data
 
-   - Assume we know exactly the series ID we want to fetch
-     - Unemployment rate, ILO definition, total, Estonia, from Eurostat
+-   Assume we know exactly the series ID we want to fetch *[^1]*
+    -   Unemployment rate, ILO definition, total, Estonia, from Eurostat
 
-::: {.fragment}
-
+::: fragment
 ```{r}
 unemp <- rdb(ids = "Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE") # fetch data
 ```
-
 :::
 
-::: {.fragment}
+
+
+
+[^1]: The **rdbnomics** package can apply filters to the data series. Available filters are listed on the filters page <https://editor.nomics.world/filters>.
+
+--- 
 
 ```{r}
 glimpse(unemp)
 ```
 
-:::
 
-## Work with the dataframe 
+
+## Work with the dataframe
 
 We can direclty work with the dataframe `unemp` as it is already in a tidy format
 
@@ -110,7 +113,7 @@ We can direclty work with the dataframe `unemp` as it is already in a tidy forma
 (series_id <- unique(unemp$series_code))  
 ```
 
---- 
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: true
@@ -136,15 +139,12 @@ When working with dynamic documents, I can also create interactive plots using t
 ggplotly(p1)
 ```
 
-
 ## But I Need a Plot That Matches Eesti Pank’s Corporate Design
 
+-   Use **ChatGPT** to extract the official color palette and font settings from Eesti Pank’s design templates (e.g., *Tööturu_ülevaade_2025.xlsx*)
+-   Define a **custom `ggplot2` theme** that matches the corporate look - `theme_ep()`
 
-- Use **ChatGPT**  to extract the official color palette and font settings from Eesti Pank’s design templates (e.g., *Tööturu_ülevaade_2025.xlsx*)
-- Define a **custom `ggplot2` theme** that matches the corporate look - `theme_ep()`
-
-::: {.fragment}
-
+::: fragment
 ```{r}
 library(ggplot2)
 
@@ -204,11 +204,9 @@ theme_ep <- function(base_size = 11, base_family = "") {
 }
 
 ```
-
 :::
 
---- 
-
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: true
@@ -253,32 +251,26 @@ writeData(wb, "Unemployment Data", unemp)
 saveWorkbook(wb, "teaching_materials/unemp_data.xlsx", overwrite = TRUE)
 ```
 
- - Exporting editable figures: Advanced topic! 
-    - Use {officer} + {rvg} to embed editable vector graphics in Excel or use {mschart} to create editable charts for Powerpoint or Word
+-   Exporting editable figures: Advanced topic!
+    -   Use {officer} + {rvg} to embed editable vector graphics in Excel or use {mschart} to create editable charts for Powerpoint or Word
 
-
----
+------------------------------------------------------------------------
 
 ### How do we find the series ID/mask/dimensions?
 
-- Go to the [DBnomics website](https://db.nomics.world/)
-  - Search directly for a series or pick a provider
-  - Search for the [data](https://db.nomics.world/Eurostat/ei_lmhr_m?tab=list) you want (dataset_code)
-  - Click on the [series](https://db.nomics.world/Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE) (series_code) 
-    - Copy the series ID from the URL  
-
+-   Go to the [DBnomics website](https://db.nomics.world/)
+    -   Search directly for a series or pick a provider
+    -   Search for the [data](https://db.nomics.world/Eurostat/ei_lmhr_m?tab=list) you want (dataset_code)
+    -   Click on the [series](https://db.nomics.world/Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE) (series_code)
+        -   Copy the series ID from the URL
 
 ## Fetch two (or more) series at once
 
- - Example: Balance of Payments (BOP) for France and Germany from the [IMF](https://db.nomics.world/IMF/BOP?tab=list) for Current Account, Total, Net, Euros, Millions, Annual
+-   Example: Balance of Payments (BOP) for France and Germany from the [IMF](https://db.nomics.world/IMF/BOP?tab=list) for Current Account, Total, Net, Euros, Millions, Annual
 
-
-::: {.fragment}
-
-::: {.panel-tabset}
-
+:::: fragment
+::: panel-tabset
 ### Option A
-
 
 ```{r}
 # by ID
@@ -286,8 +278,7 @@ bop <- rdb(ids = c("IMF/BOP/A.FR.BCA_BP6_EUR", "IMF/BOP/A.DE.BCA_BP6_EUR"))
 bop %>% count(`Reference Area`)
 ```
 
-
-### Option B: 
+### Option B:
 
 ```{r}
 # by Mask
@@ -297,12 +288,9 @@ bop <- rdb(provider = "IMF",
 bop %>% count(`Reference Area`)
 ```
 
+### Option C:
 
-### Option C: 
-
-
-<span style="color:red; font-weight:bold;">⚠You can not specify a dimension without a value!</span>
-
+[⚠You can not specify a dimension without a value!]{style="color:red; font-weight:bold;"}
 
 ```{r}
 # by Dimension
@@ -319,15 +307,10 @@ dim <- list(
 bop <- rdb(provider = "IMF", dataset_code = "BOP", dimensions = dim)
 bop %>% count(`Reference Area`)
 ```
-
-
 :::
+::::
 
-:::
-
----
-
-
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: true
@@ -346,17 +329,14 @@ p2 <- ggplot(bop, aes(x = period, y = value, color = `Reference Area`)) +
 p2
 ```
 
-
 ## Wildcarding dimensions
 
-  - To fetch **all** for a dimension (e.g. countries), just **remove** the value from that position 
-    - Example: remove `"EE"` to fetch all countries (`REF_AREA`)
-  
-  - Consumer confidence index from the OECD, downloading data on all countries
+-   To fetch **all** for a dimension (e.g. countries), just **remove** the value from that position
+    -   Example: remove `"EE"` to fetch all countries (`REF_AREA`)
+-   Consumer confidence index from the OECD, downloading data on all countries
 
-::: {.fragment}
-
-<span style="color:red;">⚠️ This can take a while</span>
+::: fragment
+[⚠️ This can take a while]{style="color:red;"}
 
 ```{r}
 #| cache: true
@@ -365,10 +345,9 @@ cci <- rdb("OECD", "DSD_HHDASH@DF_HHDASH_CTRY", "Q..CCICP.IX")
 # cci <- rdb("OECD", "DSD_HHDASH@DF_HHDASH_CTRY", "..CCICP.IX") # also wildcard the frequency
 unique(cci$REF_AREA)
 ```
-
 :::
 
----
+------------------------------------------------------------------------
 
 ```{r}
 #| warning: false
@@ -384,7 +363,7 @@ cci_eu <- cci %>%
 unique(cci_eu$`Reference area`)
 
 ```
-  
+
 ```{r}
 #| echo: false
 library(gghighlight)
@@ -450,13 +429,11 @@ p3 <- cci_eu |>
 
 ```
 
---- 
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: false
 p3
 ```
-
-
 
 ## End of session

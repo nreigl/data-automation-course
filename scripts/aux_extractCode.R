@@ -48,4 +48,5 @@ library(here)
 
 extract_code("fetching.qmd")
 extract_code("reporting.qmd", annotated = TRUE)
-extract_code("example2_statistics_estonia.qmd", outname = "example2_clean.R")
+extract_code("example2_statistics_estonia.qmd", outname = "example2.R")
+extract_code("example1_dbnomics.qmd", outname = "example1.R")
