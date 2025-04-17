@@ -7,6 +7,7 @@ format:
   revealjs:
     # output-file: presentation_for_distribution_fetching.html
     encoding: "UTF-8"
+    footer: "[GitHub - Example 2](https://github.com/nreigl/data-automation-course/blob/main/teaching_materials/example2_statistics_estonia.qmd)"
     incremental: true
     preview-links: true
     scroll-view: false
@@ -32,6 +33,7 @@ format:
     output-file: example2_beamer.pdf
 editor_options:
   chunk_output_type: console
+bibliography: references.bib
 ---
 
 ## Setup R
@@ -94,7 +96,7 @@ Enter your choice:
 
 ## GET call to PXWEB API
 
- - Example dataset:  PA111 -  AVERAGE MONTHLY GROSS WAGES (SALARIES)
+-   Example dataset: PA111 - AVERAGE MONTHLY GROSS WAGES (SALARIES)
 
 ::: fragment
 ```{r}
@@ -125,9 +127,10 @@ pa111_meta$variables[[1]]
 ## Fetch data
 
 -   Set: Key-value pair (as R list object) & Url to the database
-  -   Wildcard operator `*` to select all values
+-   Wildcard operator `*` to select all values
 
-::: fragment
+::: fragment 
+
 ```{r}
 px_query_list1 <- list(
   "Näitaja" = c("GR_W_D1", "GR_W_D5", "GR_W_D9"),
@@ -140,6 +143,7 @@ pa111 <- pxweb_get(
   query = px_query_list1
 )
 ```
+
 :::
 
 -   We get a list object with the data

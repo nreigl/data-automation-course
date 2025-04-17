@@ -7,6 +7,7 @@ format:
   revealjs:
     # output-file: presentation_for_distribution_fetching.html
     encoding: "UTF-8"
+    footer: "[GitHub - Example 1](https://github.com/nreigl/data-automation-course/blob/main/teaching_materials/example1_dbnomics.qmd)"
     incremental: true
     preview-links: true
     scroll-view: false
@@ -32,6 +33,7 @@ format:
     output-file: example1_beamer.pdf
 editor_options:
   chunk_output_type: console
+bibliography: references.bib
 ---
 
 ## Setup R
@@ -56,8 +58,8 @@ library(countrycode)  # for country codes
             -   [eurostat](https://cran.r-project.org/package=eurostat): Access data from Eurostat
             -   [OECD](https://cran.r-project.org/package=OECD): Access data from the OECD API
     -   General-purpose packages:
-        -   [rdbnomics](https://cran.r-project.org/package=rdbnomics): Unified access to many economic databases (e.g. ECB, **Eurostat**, IMF, World Bank) 
-        - [pxweb](https://cran.r-project.org/web/packages/pxweb/vignettes/pxweb.html): R package developed by Statistics Sweden to disseminate public statistics
+        -   [rdbnomics](https://cran.r-project.org/package=rdbnomics): Unified access to many economic databases (e.g. ECB, **Eurostat**, IMF, World Bank)
+        -   [pxweb](https://cran.r-project.org/web/packages/pxweb/vignettes/pxweb.html): R package developed by Statistics Sweden to disseminate public statistics
 
 ## DBnomics
 
@@ -78,8 +80,10 @@ library(countrycode)  # for country codes
 
 ## Example: Fetch Unemployment Data
 
--   Assume we know exactly the series ID we want to fetch *[^1]*
+-   Assume we know exactly the series ID we want to fetch [^1]
     -   Example data: Unemployment rate, ILO definition, total, Estonia, from Eurostat
+
+[^1]: *The **rdbnomics** package can apply filters to the data series. Available filters are listed on the filters page <https://editor.nomics.world/filters>.*
 
 ::: fragment
 ```{r}
@@ -87,18 +91,11 @@ unemp <- rdb(ids = "Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE") # fetch data
 ```
 :::
 
-
-
-
-[^1]: The **rdbnomics** package can apply filters to the data series. Available filters are listed on the filters page <https://editor.nomics.world/filters>.
-
---- 
+------------------------------------------------------------------------
 
 ```{r}
 glimpse(unemp)
 ```
-
-
 
 ## Work with the dataframe
 
