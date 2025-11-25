@@ -1,7 +1,8 @@
 library(quarto)     # for compiling Quarto presentations and documents
-library(pxweb) # query and fetch data from Statistics Estonia
+library(pxweb)      # query and fetch data from Statistics Estonia
 library(tidyverse)  # dplyr, ggplot2, readr, etc.
-library(here)  # path settings
+library(lubridate)  # for date handling (yq function)
+library(here)       # path settings
 
 # pxweb_interactive() # All available databases
 # pxweb_interactive("https://andmed.stat.ee/api/v1/en/stat") # Statistics Estonia
@@ -36,7 +37,7 @@ head(pa111.df, n=3)
 
 selected_sectors <- c("Manufacturing", "Construction", "Information and communication", "Real estate activities", "Total - all activities")
 # Clean and reshape
-pa111_plotdata <- pa111.df %>%
+pa111_plotdata <- pa111.df |>
   mutate(
     quarter = yq(str_replace(`Reference period`, " ", "-")),
     Indicator = recode(
@@ -45,20 +46,20 @@ pa111_plotdata <- pa111.df %>%
       "GR_W_D5" = "Median",
       "GR_W_D9" = "D9"
     )
-  ) %>%
+  ) |>
   filter(
     `Economic activity` %in% selected_sectors,
     Indicator %in% c("D1", "Median", "D9")
-  ) %>%
-  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) %>%
+  ) |>
+  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) |>
   pivot_wider(names_from = Indicator, values_from = value)
 
-overall_median <- pa111_plotdata %>%
-  filter(`Economic activity` == "Total - all activities") %>%
+overall_median <- pa111_plotdata |>
+  filter(`Economic activity` == "Total - all activities") |>
   select(quarter, total_median = Median)
 
-pa111_plotdata <- pa111_plotdata %>%
-  filter(`Economic activity` != "Total - all activities") %>%
+pa111_plotdata <- pa111_plotdata |>
+  filter(`Economic activity` != "Total - all activities") |>
   left_join(overall_median, by = "quarter")
 
 meta <- pa111$metadata[[1]]

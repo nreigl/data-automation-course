@@ -119,10 +119,16 @@ execute:
 
 ## R and Python Chunks in Quarto
 
-This is an example of an R chunk in Quarto. It fetches data from the Eurostat database using the `rdbnomics` package.
+This is an example of an R chunk in Quarto. It fetches data from Eurostat using the `rsdmx` package.
 
 ``` r
-# Example RMarkdown chunk
-library(rdbnomics)  # 
-unemp <- rdb(ids = "Eurostat/ei_lmhr_m/M.PC_ACT.SA.LM-UN-T-TOT.EE") # fetch data
+# Example R chunk
+library(rsdmx)
+unemp_sdmx <- readSDMX(
+  providerId = "ESTAT",
+  resource = "data",
+  flowRef = "ei_lmhr_m",
+  key = "M.PC_ACT.SA.LM-UN-T-TOT.EE"
+)
+unemp <- as.data.frame(unemp_sdmx)
 ```

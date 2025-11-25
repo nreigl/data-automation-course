@@ -13,6 +13,12 @@ website:
         text: Fetching Data
       - href: teaching_materials/example1_sdmx.qmd
         text: Example 1 (SDMX)
+      - href: teaching_materials/example2_statistics_estonia.qmd
+        text: Example 2 (Estonia)
+      - href: teaching_materials/reporting.qmd
+        text: Reporting
+      - href: about.qmd
+        text: About
 
 format:
   revealjs:

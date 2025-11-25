@@ -299,7 +299,7 @@ unique(mir$BS_ITEM)
 
 ```{r}
 # Filter by BS_ITEM and countries
-mir_filtered <- mir %>%
+mir_filtered <- mir |>
   filter(
     REF_AREA %in% c("EE", "LV", "LT"),
     BS_ITEM %in% c("A2I", "A2C", "A2B", "A2J", "A2A")
@@ -326,7 +326,7 @@ caption_text <- paste(
   paste0("\nFiltered: REF_AREA in ", country_list, "; BS_ITEM in ", item_list)
 )
 
-mir_filtered <- mir_filtered %>%
+mir_filtered <- mir_filtered |>
   mutate(facet_label = paste0(BS_ITEM, ": ", TITLE_COMPL |> str_trunc(50)))
 
 p4 <- ggplot(mir_filtered, aes(x = period, y = value, color = REF_AREA)) +
@@ -580,7 +580,7 @@ head(pa111.df, n=3)
 #| echo: true
 selected_sectors <- c("Manufacturing", "Construction", "Information and communication", "Real estate activities", "Total - all activities")
 # Clean and reshape
-pa111_plotdata <- pa111.df %>%
+pa111_plotdata <- pa111.df |>
   mutate(
     quarter = yq(str_replace(`Reference period`, " ", "-")),
     Indicator = recode(
@@ -589,23 +589,23 @@ pa111_plotdata <- pa111.df %>%
       "GR_W_D5" = "Median",
       "GR_W_D9" = "D9"
     )
-  ) %>%
+  ) |>
   filter(
     `Economic activity` %in% selected_sectors,
     Indicator %in% c("D1", "Median", "D9")
-  ) %>%
-  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) %>%
+  ) |>
+  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) |>
   pivot_wider(names_from = Indicator, values_from = value)
 ```
 
 ```{r}
 #| echo: true
-overall_median <- pa111_plotdata %>%
-  filter(`Economic activity` == "Total - all activities") %>%
+overall_median <- pa111_plotdata |>
+  filter(`Economic activity` == "Total - all activities") |>
   select(quarter, total_median = Median)
 
-pa111_plotdata <- pa111_plotdata %>%
-  filter(`Economic activity` != "Total - all activities") %>%
+pa111_plotdata <- pa111_plotdata |>
+  filter(`Economic activity` != "Total - all activities") |>
   left_join(overall_median, by = "quarter")
 ```
 

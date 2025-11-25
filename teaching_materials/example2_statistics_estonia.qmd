@@ -49,10 +49,10 @@ library(here)  # path settings
 
 ## Accessing Statistics Estonia Data with `pxweb`
 
--   [Statistics Estonia](https://www.stat.ee/en) is **not yet part of DBnomics**
+-   [Statistics Estonia](https://www.stat.ee/en) uses the **PX-WEB API** (not SDMX)
 -   There is **no dedicated R package** for [andmed.stat.ee](https://andmed.stat.ee/en/stat)
 -   **However**, you can access the data using the `pxweb` R package
--   It is based on the **PX-WEB API**, also used by many Nordic statistical agencies
+-   PX-WEB API is also used by many Nordic statistical agencies (Sweden, Finland, Norway)
 
 ------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ head(pa111.df, n=3)
 #| echo: false
 selected_sectors <- c("Manufacturing", "Construction", "Information and communication", "Real estate activities", "Total - all activities")
 # Clean and reshape
-pa111_plotdata <- pa111.df %>%
+pa111_plotdata <- pa111.df |>
   mutate(
     quarter = yq(str_replace(`Reference period`, " ", "-")),
     Indicator = recode(
@@ -182,23 +182,23 @@ pa111_plotdata <- pa111.df %>%
       "GR_W_D5" = "Median",
       "GR_W_D9" = "D9"
     )
-  ) %>%
+  ) |>
   filter(
     `Economic activity` %in% selected_sectors,
     Indicator %in% c("D1", "Median", "D9")
-  ) %>%
-  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) %>%
+  ) |>
+  select(quarter, `Economic activity`, Indicator, value = `PA111: AVERAGE MONTHLY GROSS WAGES (SALARIES), MEDIAN, DECILES AND NUMBER OF EMPLOYEES`) |>
   pivot_wider(names_from = Indicator, values_from = value)
 ```
 
 ```{r}
 #| echo: false
-overall_median <- pa111_plotdata %>%
-  filter(`Economic activity` == "Total - all activities") %>%
+overall_median <- pa111_plotdata |>
+  filter(`Economic activity` == "Total - all activities") |>
   select(quarter, total_median = Median)
 
-pa111_plotdata <- pa111_plotdata %>%
-  filter(`Economic activity` != "Total - all activities") %>%
+pa111_plotdata <- pa111_plotdata |>
+  filter(`Economic activity` != "Total - all activities") |>
   left_join(overall_median, by = "quarter")
 ```
 
