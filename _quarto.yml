@@ -11,6 +11,8 @@ website:
         text: Introduction
       - href: teaching_materials/fetching.qmd
         text: Fetching Data
+      - href: teaching_materials/example1_sdmx.qmd
+        text: Example 1 (SDMX)
 
 format:
   revealjs:

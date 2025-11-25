@@ -1,0 +1,482 @@
+---
+title: "Example 1: Fetch data with R using SDMX"
+author: "Nicolas"
+date: "2025-04-17"
+institute: "Eesti Pank"
+format:
+  revealjs:
+    encoding: "UTF-8"
+    footer: "[GitHub - Example 1](https://github.com/nreigl/data-automation-course/blob/main/teaching_materials/example1_sdmx.qmd)"
+    incremental: true
+    preview-links: true
+    scroll-view: false
+    theme: simple
+    smaller: true
+    slide-number: true
+    font-size: 1.2em
+    transition: slide
+    toc: false
+    toc-depth: 2
+    chalkboard: true
+    embed-resources: false
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+  beamer:
+    slide-level: 2
+    output-file: example1_beamer.pdf
+editor_options:
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+## Setup R
+
+::: fragment
+```{r}
+#| message: false
+#| warning: false
+# install.packages("rsdmx")
+library(quarto)       # for compiling Quarto presentations and documents
+library(rsdmx)        # for fetching SDMX data
+library(tidyverse)    # dplyr, ggplot2, readr, etc.
+library(here)         # path settings
+library(plotly)       # for interactive plots
+library(countrycode)  # for country codes
+library(lubridate)    # for date handling
+```
+:::
+
+## What is SDMX?
+
+-   **S**tatistical **D**ata and **M**etadata e**X**change
+    -   International standard for exchanging statistical data and metadata
+    -   Initiated by 7 international organizations:
+        -   BIS, ECB, Eurostat, IMF, OECD, UN, World Bank
+    -   Used by 100+ national and international organizations
+
+::: fragment
+-   Why SDMX matters:
+    -   Standardized data structures across providers
+    -   Machine-readable metadata (concepts, codelists)
+    -   Direct access to official statistics at the source
+:::
+
+## Interfaces to Official Statistics
+
+-   Packages or set of classes and methods to read data through exchange frameworks
+    -   Use [R](https://www.r-project.org/) (or [Python](https://www.python.org/)) packages to read data from APIs
+        -   Individual packages:
+            -   [eurostat](https://cran.r-project.org/package=eurostat): Access data from Eurostat
+            -   [OECD](https://cran.r-project.org/package=OECD): Access data from the OECD API
+    -   General-purpose packages:
+        -   [rsdmx](https://cran.r-project.org/package=rsdmx): Direct access to SDMX endpoints (Eurostat, ECB, OECD, IMF, etc.)
+        -   [pxweb](https://cran.r-project.org/web/packages/pxweb/vignettes/pxweb.html): R package for PX-Web API (Statistics Sweden, Estonia)
+
+## Exploring SDMX Providers
+
+::: fragment
+```{r}
+# List available built-in providers
+providers <- getSDMXServiceProviders()
+provider_df <- as.data.frame(providers)
+provider_df[, c("agencyId", "name")] |> head(10)
+```
+:::
+
+------------------------------------------------------------------------
+
+### Key Providers for Economic Statistics
+
+| Provider | Agency ID | Data Coverage |
+|----------|-----------|---------------|
+| Eurostat | ESTAT | EU official statistics |
+| ECB | ECB | Monetary & financial data |
+| OECD | OECD | Economic indicators |
+| IMF | IMF_DATA | Balance of payments, etc. |
+| World Bank | WB | Development indicators |
+
+------------------------------------------------------------------------
+
+::: {style="text-align: center;"}
+<img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWx1Ym12YWxkZ2xhcThjNXYybGo4ZnA1bmtvNWU0ZW4zZm5idmpvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JecCAExsqUC4HDy/giphy.gif" width="800"/>
+:::
+
+## Example: Fetch Unemployment Data
+
+-   Example data: Unemployment rate, ILO definition, total, Estonia, from Eurostat
+-   Using `readSDMX()` function with the ESTAT provider
+
+::: fragment
+```{r}
+#| cache: true
+# Fetch unemployment data from Eurostat
+unemp_sdmx <- readSDMX(
+  providerId = "ESTAT",
+  resource = "data",
+  flowRef = "ei_lmhr_m",
+  key = "M.PC_ACT.SA.LM-UN-T-TOT.EE",
+  start = 2000,
+  end = 2025
+)
+
+# Convert to data.frame
+unemp <- as.data.frame(unemp_sdmx)
+```
+:::
+
+------------------------------------------------------------------------
+
+```{r}
+glimpse(unemp)
+```
+
+## Understanding SDMX Keys
+
+-   The **key** specifies which data to fetch
+-   Format: `dimension1.dimension2.dimension3...`
+-   For Eurostat ei_lmhr_m dataset:
+
+| Position | Dimension | Value | Meaning |
+|----------|-----------|-------|---------|
+| 1 | FREQ | M | Monthly |
+| 2 | UNIT | PC_ACT | % of active population |
+| 3 | S_ADJ | SA | Seasonally adjusted |
+| 4 | INDIC | LM-UN-T-TOT | Total unemployment |
+| 5 | GEO | EE | Estonia |
+
+## Work with the dataframe
+
+We need to standardize column names (SDMX uses different conventions)
+
+```{r}
+# Standardize the data
+unemp <- unemp |>
+  mutate(
+    period = ym(obsTime),  # Convert to date
+    value = as.numeric(obsValue),
+    provider_code = "Eurostat",
+    dataset_code = "ei_lmhr_m",
+    series_code = "M.PC_ACT.SA.LM-UN-T-TOT.EE"
+  )
+
+# Extract metadata
+(source_name <- unique(unemp$dataset_code))
+(provider_code <- unique(unemp$provider_code))
+(country_name <- "Estonia")
+(series_id <- unique(unemp$series_code))
+```
+
+------------------------------------------------------------------------
+
+```{r}
+#| echo: true
+#| output-location: slide
+# Plot the data
+p1 <- ggplot(unemp, aes(x = period, y = value)) +
+  geom_line(color = "steelblue", linewidth = 1) +
+  labs(
+    title = paste("Unemployment Rate in", country_name),
+    subtitle = paste("Monthly, seasonally adjusted —", provider_code),
+    x = "Date", y = "Percent",
+    caption = paste("Source:", provider_code, "| Dataset:", source_name, "| ID:", series_id)
+  ) +
+  theme_minimal()
+p1
+```
+
+## Interactive plot
+
+When working with dynamic documents, I can also create interactive plots using the `plotly` package.
+
+```{r}
+ggplotly(p1)
+```
+
+## But I Need a Plot That Matches Eesti Pank's Corporate Design
+
+-   Use **ChatGPT** to extract the official color palette and font settings from Eesti Pank's design templates (e.g., *Tööturu_ülevaade_2025.xlsx*)
+-   Define a **custom `ggplot2` theme** that matches the corporate look - `theme_ep()`
+
+::: fragment
+```{r}
+library(ggplot2)
+
+# Color scale
+scale_color_ep <- function(...) {
+  scale_color_manual(
+    values = c(
+      "#0079BC", # Accent 1
+      "#D6E1F2", # Accent 2
+      "#FF8C42", # Accent 3
+      "#8ACC61", # Accent 4
+      "#E85C70", # Accent 5
+      "#E091D4" # Accent 6
+    ),
+    ...
+  )
+}
+
+# Fill scale
+scale_fill_ep <- function(...) {
+  scale_fill_manual(
+    values = c(
+      "#0079BC",
+      "#D6E1F2",
+      "#FF8C42",
+      "#8ACC61",
+      "#E85C70",
+      "#E091D4"
+    ),
+    ...
+  )
+}
+# Custom ggplot2 theme for Eesti Pank
+theme_ep <- function(base_size = 11, base_family = "") {
+  theme_minimal(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      plot.background = element_rect(fill = "#FFFFFF", color = NA),
+      panel.background = element_rect(fill = "#FFFFFF", color = NA),
+      panel.grid.major.x = element_blank(),
+      panel.grid.major.y = element_line(color = "#858A8C"),
+      panel.grid.minor = element_blank(),
+      axis.text = element_text(color = "#000000"),
+      axis.title = element_text(color = "#000000"),
+      plot.title = element_text(
+        face = "bold",
+        color = "#000000",
+        margin = margin(b = 10)
+      ),
+      plot.caption = element_text(size = 9, color = "#444444", hjust = 0),
+      legend.background = element_rect(fill = "#FFFFFF", color = NA),
+      legend.key = element_rect(fill = "#FFFFFF", color = NA),
+      legend.position = "top",
+      legend.title = element_blank(),
+      legend.margin = margin(b = 5),
+      legend.box.margin = margin(t = 5, b = 5)
+    )
+}
+
+```
+:::
+
+------------------------------------------------------------------------
+
+```{r}
+#| echo: true
+#| output-location: slide
+unemp |>
+  filter(period >= "2010-01-01") |>
+  ggplot(aes(x = period, y = value)) +
+  geom_line(color = "steelblue", linewidth = 1) +
+  geom_hline(yintercept = 0, color = "#000", linewidth = 0.5) +
+  scale_x_date(
+    date_breaks = "1 year",
+    date_labels = "%Y"
+  ) +
+  scale_y_continuous(
+    labels = scales::label_number(suffix = "%"),
+    name = NULL
+  ) +
+  labs(
+    title = paste("Unemployment Rate in", country_name),
+    subtitle = paste("Monthly, seasonally adjusted"),
+    x = NULL,
+    caption = paste(
+      "Source:",
+      provider_code,
+      "| Dataset:",
+      source_name,
+      "| ID:",
+      series_id
+    )
+  ) +
+  theme_ep()
+```
+
+## But I Need to Store the data as an Excel File
+
+```{r}
+library(openxlsx)
+
+wb <- createWorkbook()
+addWorksheet(wb, "Unemployment Data")
+writeData(wb, "Unemployment Data", unemp)
+saveWorkbook(wb, "teaching_materials/unemp_data.xlsx", overwrite = TRUE)
+```
+
+-   Exporting editable figures: Advanced topic!
+    -   Use {officer} + {rvg} to embed editable vector graphics in Excel or use {mschart} to create editable charts for Powerpoint or Word
+
+------------------------------------------------------------------------
+
+### How do we find the series ID/key?
+
+-   Go to the provider's data portal (e.g., [Eurostat Data Browser](https://ec.europa.eu/eurostat/databrowser/))
+    -   Search for the dataset you want
+    -   Select filters/dimensions
+    -   Look for "SDMX" download option or API query builder
+-   Or use the rsdmx package to explore available datasets
+
+## Fetching from ECB
+
+-   Example: ECB Interest Rates (MIR - MFI Interest Rate Statistics)
+-   Estonia mortgage rates: loans to households for house purchase
+
+::: fragment
+```{r}
+#| cache: true
+# ECB uses direct URL approach
+ecb_url <- "https://data-api.ecb.europa.eu/service/data/MIR/M.EE.B.A2C.A.R.A.2250.EUR.N?startPeriod=2010&endPeriod=2025"
+
+mir_sdmx <- readSDMX(ecb_url)
+mir <- as.data.frame(mir_sdmx)
+
+# Standardize
+mir <- mir |>
+  mutate(
+    period = ym(obsTime),
+    value = as.numeric(obsValue)
+  )
+
+head(mir[, c("period", "value", "TITLE")], 3)
+```
+:::
+
+------------------------------------------------------------------------
+
+```{r}
+#| echo: true
+#| output-location: slide
+mir |>
+  ggplot(aes(x = period, y = value)) +
+  geom_line(color = "#0079BC", linewidth = 1) +
+  labs(
+    title = "Estonia Mortgage Interest Rates",
+    subtitle = "Loans to households for house purchase (new business)",
+    x = NULL,
+    y = "Interest Rate (%)",
+    caption = "Source: ECB MIR Statistics"
+  ) +
+  theme_ep()
+```
+
+## Fetching from OECD
+
+-   OECD updated their API in July 2024 (OECD Data Explorer)
+-   Requires direct URL approach with new format
+
+::: fragment
+```{r}
+#| cache: true
+# OECD Consumer Confidence Index - Composite Leading Indicators
+oecd_url <- "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI/.M.LI...AA...H?startPeriod=2015-01&endPeriod=2025-12"
+
+cci_sdmx <- readSDMX(oecd_url)
+cci <- as.data.frame(cci_sdmx)
+
+# Preview
+head(cci[, c("REF_AREA", "obsTime", "obsValue")], 5)
+```
+:::
+
+------------------------------------------------------------------------
+
+```{r}
+#| warning: false
+# Filter for European countries and standardize
+cci_eu <- cci |>
+  filter(REF_AREA %in% c("EU27_2020", "AUT", "EST", "FIN", "DEU", "LVA", "LTU", "POL", "SWE")) |>
+  mutate(
+    period = ym(obsTime),
+    value = as.numeric(obsValue),
+    country = case_when(
+      REF_AREA == "EU27_2020" ~ "EU27",
+      TRUE ~ countrycode(REF_AREA, origin = "iso3c", destination = "country.name")
+    )
+  )
+
+unique(cci_eu$country)
+```
+
+------------------------------------------------------------------------
+
+```{r}
+#| echo: false
+#| warning: false
+library(gghighlight)
+
+desired_order <- c("European Union", "Austria", "Germany", "Estonia",
+                   "Finland", "Lithuania", "Latvia", "Poland", "Sweden")
+
+p3 <- cci_eu |>
+  ggplot() +
+  geom_hline(yintercept = 100, linetype = "solid", size = 0.25) +
+  geom_point(
+    data = cci_eu |> group_by(country) |> slice_max(period),
+    aes(x = period, y = value, color = country),
+    shape = 16
+  ) +
+  geom_line(aes(x = period, y = value, color = country)) +
+  gghighlight(
+    use_direct_label = FALSE,
+    unhighlighted_params = list(colour = alpha("grey85", 1))
+  ) +
+  geom_text(
+    data = cci_eu |> group_by(country) |> slice_max(period),
+    aes(x = period, y = value, color = country, label = round(value, 1)),
+    hjust = -0.5,
+    vjust = 0.5,
+    size = 2.5,
+    fontface = "bold"
+  ) +
+  scale_x_date(
+    date_labels = "%Y",
+    date_breaks = "2 years",
+    name = NULL
+  ) +
+  scale_y_continuous(
+    breaks = c(96, 98, 100, 102, 104),
+    name = NULL
+  ) +
+  facet_wrap(~ factor(country, levels = desired_order)) +
+  coord_cartesian(clip = "off") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  labs(
+    title = "Composite Leading Indicator",
+    subtitle = "Selected European Countries & EU27",
+    caption = "Source: OECD / rsdmx"
+  )
+```
+
+------------------------------------------------------------------------
+
+```{r}
+#| echo: false
+p3
+```
+
+## Summary: rsdmx Patterns
+
+| Pattern | Code Example |
+|---------|--------------|
+| Built-in provider | `readSDMX(providerId = "ESTAT", resource = "data", flowRef = "dataset", key = "...")` |
+| Direct URL | `readSDMX("https://data-api.ecb.europa.eu/service/data/...")` |
+| Wildcarding | Use empty position in key: `"M..SA.."` or `NULL` in list |
+| Get labels | Use `dsd = TRUE` parameter, then `as.data.frame(sdmx, labels = TRUE)` |
+
+## Key Takeaways
+
+1.  **SDMX** is the international standard for statistical data exchange
+2.  **rsdmx** provides direct access to official statistics at the source
+3.  Different providers may require different approaches (built-in vs URL)
+4.  Always standardize column names (`obsTime` → `period`, `obsValue` → `value`)
+5.  Use provider data portals to discover dataset codes and key structures
+
+## End of session

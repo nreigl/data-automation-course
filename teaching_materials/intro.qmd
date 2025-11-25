@@ -36,7 +36,7 @@ Welcome to the **Data Automatisation Course**! In this hands-on workshop, you'll
 **Morning (09:30–12:00)**  
 - Introduction & Motivation  
 - APIs and official statistics  
-- Fetching data with `pxweb` and `rdbnomics`
+- Fetching data with `pxweb` and `rsdmx`
 
 **Lunch Break**
 
@@ -51,7 +51,7 @@ Welcome to the **Data Automatisation Course**! In this hands-on workshop, you'll
 
 By the end of this course, you will be able to:
 
-- Access and explore data from Statistics Estonia and DBnomics
+- Access and explore data from Statistics Estonia and SDMX providers (Eurostat, ECB, OECD)
 - Automate data downloads and updates
 - Build clean, reproducible reports with R and Quarto
 
@@ -62,7 +62,7 @@ By the end of this course, you will be able to:
 - **R** and **RStudio**
 - Quarto
 - Tidyverse
-- APIs (`rdbnomics`, `pxweb`)
+- APIs (`rsdmx`, `pxweb`)
 
 ## Why Write Code Instead of Using Excel?
 

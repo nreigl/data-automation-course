@@ -1,6 +1,6 @@
 install.packages(c(
   "tidyverse",
-  "rdbnomics",
+  "rsdmx",
   "eurostat",
   "openxlsx",
   "pxweb",
@@ -8,7 +8,10 @@ install.packages(c(
   "plotly",
   "gt",
   "httr",
-  "jsonlite"
+  "jsonlite",
+  "countrycode",
+  "gghighlight",
+  "lubridate"
 ))
 
 # In case you want to install python via in RStudio I suggest to use the reticulate package.
