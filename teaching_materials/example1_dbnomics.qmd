@@ -99,7 +99,7 @@ glimpse(unemp)
 
 ## Work with the dataframe
 
-We can direclty work with the dataframe `unemp` as it is already in a tidy format
+We can directly work with the dataframe `unemp` as it is already in a tidy format
 
 ```{r}
 # Extract source and series ID from the metadata
